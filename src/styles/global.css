@@ -314,3 +314,15 @@ h3{font-size:16px}
 .upload{border:1.5px dashed var(--line);border-radius:var(--r);padding:18px;text-align:center;color:var(--ink-2);cursor:pointer;background:var(--paper)}
 .upload:hover{border-color:var(--pine-3)}
 @media (max-width:860px){.deck-top{flex-wrap:wrap;gap:10px}.source-label{display:none}.login{grid-template-columns:1fr}.login-hero h1{font-size:44px}.view{padding:18px 14px 80px}.cost-hero{grid-template-columns:1fr}.spec-row{grid-template-columns:28px 1fr 1fr}.spec-row .x{display:none}.deck-search{display:none}}
+
+/* ---------- port additions (React re-platform) ---------- */
+/* waterfall bar growth: was an inline <style> inside each SVG in charts.js */
+@keyframes grow{from{transform:scaleY(0)}}
+.wf-bar{animation:grow .5s both ease-out}
+/* reduced motion: the POC covered the ticker and waterfall; extend to every animation */
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;scroll-behavior:auto!important}
+  .wf-bar{animation:none!important}
+}
+#root{min-height:100%}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
