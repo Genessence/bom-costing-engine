@@ -1,0 +1,1494 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ChassisIQ: cost and specification studio (POC for Amber)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,600;12..96,700&family=Instrument+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>:root{
+  --pine:#0E2E25; --pine-2:#173F35; --pine-3:#22564A;
+  --fog:#E8EEEA; --paper:#FBFCFA; --paper-2:#F3F6F4;
+  --ink:#15201B; --ink-2:#465650; --ink-3:#7A8781;
+  --line:#D3DCD7; --line-2:#E3E9E5;
+  --mint:#36C79A; --mint-ink:#0C6A4E; --mint-wash:#DDF5EC;
+  --up:#B8392A; --up-wash:#FBE7E3; --down:#1A8259; --down-wash:#DFF3E9;
+  --warn:#9A6A08; --warn-wash:#FBF0D6;
+  --cu:#B5622D; --al:#2F7FC1; --pl:#C79A1E; --rf:#1E9C94; --cp:#8A57A8; --st:#6E8A2A;
+  --display:"Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --body:"Instrument Sans", "Segoe UI", system-ui, sans-serif;
+  --r-sm:6px; --r:10px; --r-lg:16px;
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%}
+body{font-family:var(--body);font-size:14px;line-height:1.5;color:var(--ink);background:var(--fog);-webkit-font-smoothing:antialiased;font-feature-settings:"tnum" 1}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid var(--mint);outline-offset:2px;border-radius:4px}
+a{color:var(--mint-ink)}
+h1,h2,h3,h4{font-family:var(--display);margin:0;font-weight:600;letter-spacing:-.01em}
+h1{font-size:30px;line-height:1.1}
+h2{font-size:20px;line-height:1.2}
+h3{font-size:16px}
+.num{font-variant-numeric:tabular-nums}
+.muted{color:var(--ink-3)}
+.sub{color:var(--ink-2)}
+.small{font-size:12.5px}
+.hide{display:none!important}
+
+/* ---------- login ---------- */
+.login{min-height:100vh;display:grid;grid-template-columns:1.1fr 1fr;background:var(--pine);color:#E7F1EC}
+.login-art{position:relative;overflow:hidden;padding:48px 56px;display:flex;flex-direction:column;justify-content:space-between}
+.fins{position:absolute;inset:0;background:repeating-linear-gradient(90deg,rgba(255,255,255,.045) 0 1px,transparent 1px 9px);mask-image:linear-gradient(180deg,transparent,#000 30%,#000 70%,transparent)}
+.login-art .brand{position:relative;z-index:1}
+.login-hero{position:relative;z-index:1}
+.login-hero h1{font-size:64px;line-height:.98;font-weight:700;letter-spacing:-.03em;max-width:9ch;color:#fff}
+.login-hero p{max-width:46ch;color:#A9C4B9;font-size:16px;margin-top:18px}
+.login-stack{position:relative;z-index:1;display:flex;gap:28px;color:#A9C4B9;font-size:13px}
+.login-stack b{display:block;font-family:var(--display);font-size:26px;color:#fff;font-weight:600}
+.login-pick{background:var(--fog);color:var(--ink);padding:48px 56px;display:flex;flex-direction:column;justify-content:center;gap:12px}
+.login-pick h2{font-size:24px;margin-bottom:4px}
+.role-card{display:grid;grid-template-columns:44px 1fr auto;gap:14px;align-items:center;text-align:left;padding:14px 16px;background:var(--paper);border:1px solid var(--line);border-radius:var(--r);transition:border-color .15s, transform .15s}
+.role-card:hover{border-color:var(--pine-3);transform:translateX(3px)}
+.role-card .av{width:44px;height:44px}
+.role-card .can{font-size:12px;color:var(--ink-3)}
+.role-card .go{color:var(--ink-3);font-size:18px}
+
+.brand{display:flex;align-items:center;gap:10px}
+.mark{width:30px;height:30px;border-radius:8px;background:linear-gradient(135deg,var(--cu),#E2A06A);position:relative;flex:none}
+.mark:after{content:"";position:absolute;inset:7px 6px;background:repeating-linear-gradient(90deg,rgba(14,46,37,.75) 0 2px,transparent 2px 5px);border-radius:2px}
+.brand-name{font-family:var(--display);font-weight:700;font-size:18px;letter-spacing:-.02em;color:#fff}
+.brand-for{font-size:11.5px;color:#8FB0A3;line-height:1.2}
+
+.av{border-radius:50%;display:grid;place-items:center;font-weight:600;font-size:13px;color:#fff;flex:none}
+
+/* ---------- shell ---------- */
+.deck{background:var(--pine);color:#DCEAE3;position:sticky;top:0;z-index:30}
+.deck-top{display:flex;align-items:center;gap:18px;padding:10px 22px}
+.deck-search{flex:1;max-width:420px;display:flex;align-items:center;gap:8px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);border-radius:8px;padding:7px 10px;color:#9DB8AC;font-size:13px}
+.deck-search kbd{margin-left:auto;font-family:var(--body);font-size:11px;border:1px solid rgba(255,255,255,.18);border-radius:4px;padding:0 5px}
+.source-switch{display:flex;align-items:center;background:rgba(0,0,0,.25);border-radius:999px;padding:3px;gap:2px}
+.source-switch button{border:0;background:transparent;color:#9DB8AC;border-radius:999px;padding:5px 12px;font-size:12.5px;font-weight:500;display:flex;align-items:center;gap:6px}
+.source-switch button.on{background:#fff;color:var(--pine)}
+.source-switch .dot{width:7px;height:7px;border-radius:50%;background:currentColor}
+.source-switch button.on.aicm .dot{background:var(--mint);box-shadow:0 0 0 3px rgba(54,199,154,.25)}
+.source-label{font-size:11.5px;color:#8FB0A3}
+.who{display:flex;align-items:center;gap:10px;margin-left:auto;padding:4px 6px 4px 4px;border-radius:999px;border:1px solid rgba(255,255,255,.12);background:transparent;color:#fff}
+.who .r{font-size:11.5px;color:#9DB8AC;display:block;line-height:1.1}
+.who .n{font-size:13px;line-height:1.2;display:block;text-align:left}
+
+.ticker{border-top:1px solid rgba(255,255,255,.07);border-bottom:1px solid rgba(255,255,255,.07);overflow:hidden;white-space:nowrap;background:#0B261F}
+.ticker-track{display:inline-flex;animation:tick 60s linear infinite}
+.ticker:hover .ticker-track{animation-play-state:paused}
+.tk{display:inline-flex;align-items:center;gap:10px;padding:7px 22px;border-right:1px solid rgba(255,255,255,.07);font-size:12.5px}
+.tk .nm{color:#9DB8AC}
+.tk .px{color:#fff;font-weight:600}
+.tk .ch.up{color:#F08A78}.tk .ch.dn{color:#6EDDB4}
+@keyframes tick{to{transform:translateX(-50%)}}
+@media (prefers-reduced-motion:reduce){.ticker-track{animation:none}}
+
+.tabs{display:flex;gap:2px;padding:0 16px;overflow-x:auto;scrollbar-width:none}
+.tab{border:0;background:transparent;color:#9DB8AC;padding:11px 12px 12px;font-size:13.5px;font-weight:500;position:relative;white-space:nowrap;display:flex;gap:7px;align-items:center}
+.tab:hover{color:#fff}
+.tab.on{color:#fff}
+.tab.on:after{content:"";position:absolute;left:10px;right:10px;bottom:0;height:3px;border-radius:3px 3px 0 0;background:var(--mint)}
+.tab.locked{opacity:.45}
+.tab .cnt{background:rgba(255,255,255,.12);border-radius:999px;font-size:11px;padding:0 6px;color:#fff}
+
+.view{padding:26px 28px 80px;max-width:1440px;margin:0 auto}
+.page-head{display:flex;align-items:flex-end;gap:16px;margin-bottom:20px;flex-wrap:wrap}
+.page-head .t{flex:1;min-width:260px}
+.page-head p{margin:6px 0 0;color:var(--ink-2);max-width:72ch}
+.crumbs{font-size:12.5px;color:var(--ink-3);margin-bottom:6px}
+.crumbs a{color:var(--ink-3);text-decoration:none}.crumbs a:hover{color:var(--ink)}
+
+/* ---------- primitives ---------- */
+.btn{display:inline-flex;align-items:center;gap:7px;border:1px solid var(--line);background:var(--paper);border-radius:8px;padding:8px 13px;font-weight:500;font-size:13.5px;transition:background .12s,border-color .12s}
+.btn:hover{border-color:var(--ink-3)}
+.btn.primary{background:var(--pine);border-color:var(--pine);color:#fff}
+.btn.primary:hover{background:var(--pine-2)}
+.btn.mint{background:var(--mint);border-color:var(--mint);color:#06281D}
+.btn.danger{color:var(--up);border-color:#E9C2BB}
+.btn.sm{padding:5px 10px;font-size:12.5px}
+.btn.ghost{border-color:transparent;background:transparent}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.btn .sp{width:13px;height:13px;border:2px solid currentColor;border-right-color:transparent;border-radius:50%;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+.panel{background:var(--paper);border:1px solid var(--line);border-radius:var(--r-lg)}
+.panel-h{display:flex;align-items:center;gap:10px;padding:16px 18px 0}
+.panel-h h3{flex:1}
+.panel-b{padding:14px 18px 18px}
+.grid{display:grid;gap:16px}
+.g2{grid-template-columns:1fr 1fr}.g3{grid-template-columns:repeat(3,1fr)}.g4{grid-template-columns:repeat(4,1fr)}
+.g-main{grid-template-columns:minmax(0,1.65fr) minmax(320px,1fr)}
+@media (max-width:1100px){.g2,.g3,.g4,.g-main{grid-template-columns:1fr}}
+
+.chip{display:inline-flex;align-items:center;gap:5px;border-radius:999px;padding:2px 9px;font-size:12px;font-weight:500;background:var(--paper-2);color:var(--ink-2);border:1px solid var(--line-2);white-space:nowrap}
+.chip.mint{background:var(--mint-wash);color:var(--mint-ink);border-color:#BDE9D8}
+.chip.warn{background:var(--warn-wash);color:var(--warn);border-color:#F0DCA8}
+.chip.up{background:var(--up-wash);color:var(--up);border-color:#F0C9C1}
+.chip.down{background:var(--down-wash);color:var(--down);border-color:#BFE5D1}
+.chip.dark{background:var(--pine);color:#fff;border-color:var(--pine)}
+.chip .d{width:6px;height:6px;border-radius:50%;background:currentColor}
+
+.tbl{width:100%;border-collapse:collapse}
+.tbl th{font-weight:500;color:var(--ink-3);font-size:12px;text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);white-space:nowrap}
+.tbl td{padding:9px 10px;border-bottom:1px solid var(--line-2);vertical-align:middle}
+.tbl tr:last-child td{border-bottom:0}
+.tbl .r{text-align:right}
+.tbl tbody tr.click{cursor:pointer}
+.tbl tbody tr.click:hover td{background:var(--paper-2)}
+.tbl tfoot td{font-weight:600;border-top:1px solid var(--line);border-bottom:0}
+.tbl input.cell{width:96px;text-align:right;border:1px solid var(--line);border-radius:6px;padding:4px 7px;background:#fff}
+.tbl input.cell:focus{border-color:var(--mint)}
+
+.field{display:flex;flex-direction:column;gap:5px}
+.field label{font-size:12.5px;color:var(--ink-2);font-weight:500}
+.inp,.sel,textarea.inp{border:1px solid var(--line);border-radius:8px;padding:8px 10px;background:#fff;width:100%}
+.inp:focus,.sel:focus{border-color:var(--mint);outline:none;box-shadow:0 0 0 3px rgba(54,199,154,.18)}
+.inp[readonly]{background:var(--paper-2);color:var(--ink-2)}
+
+.kpi{padding:16px 18px}
+.kpi .l{font-size:12.5px;color:var(--ink-2)}
+.kpi .v{font-family:var(--display);font-size:30px;font-weight:600;letter-spacing:-.02em;margin-top:2px}
+.kpi .f{font-size:12px;color:var(--ink-3);margin-top:2px}
+
+.mat{display:inline-flex;align-items:center;gap:6px}
+.mat i{width:9px;height:9px;border-radius:3px;display:inline-block}
+.lock-note{display:flex;gap:12px;align-items:center;padding:28px;border:1px dashed var(--line);border-radius:var(--r-lg);background:var(--paper);color:var(--ink-2)}
+.lock-note .ic{width:40px;height:40px;border-radius:10px;background:var(--paper-2);display:grid;place-items:center;font-size:18px}
+
+/* status pills */
+.st{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:500;padding:2px 9px;border-radius:999px;white-space:nowrap}
+.st i{width:7px;height:7px;border-radius:50%}
+.st-NEW{background:#EDE7F6;color:#5B3D8C}.st-NEW i{background:#7E57C2}
+.st-ALLOCATED,.st-RND{background:#E3EEF9;color:#1F5E99}.st-ALLOCATED i,.st-RND i{background:#2F7FC1}
+.st-SUBMITTED{background:var(--warn-wash);color:var(--warn)}.st-SUBMITTED i{background:#C79A1E}
+.st-RETURNED{background:var(--up-wash);color:var(--up)}.st-RETURNED i{background:var(--up)}
+.st-APPROVED,.st-COSTING{background:#E2F2F1;color:#126C66}.st-APPROVED i,.st-COSTING i{background:var(--rf)}
+.st-COSTED{background:var(--mint-wash);color:var(--mint-ink)}.st-COSTED i{background:var(--mint)}
+.st-SENT{background:var(--pine);color:#fff}.st-SENT i{background:var(--mint)}
+
+/* pipeline */
+.pipe{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:2px;border-radius:var(--r);overflow:hidden}
+.pipe .stg{background:var(--paper-2);padding:12px 12px 14px;position:relative}
+.pipe .stg b{font-family:var(--display);font-size:24px;font-weight:600;display:block}
+.pipe .stg span{font-size:12px;color:var(--ink-2)}
+.pipe .stg.hot{background:var(--pine);color:#fff}.pipe .stg.hot span{color:#A9C4B9}
+
+/* timeline */
+.tl{list-style:none;margin:0;padding:0;position:relative}
+.tl li{position:relative;padding:0 0 16px 26px}
+.tl li:before{content:"";position:absolute;left:7px;top:16px;bottom:0;width:1px;background:var(--line)}
+.tl li:last-child:before{display:none}
+.tl li .b{position:absolute;left:0;top:3px;width:15px;height:15px;border-radius:50%;border:2px solid var(--paper);background:var(--mint);box-shadow:0 0 0 1px var(--line)}
+.tl li.pend .b{background:var(--paper-2)}
+.tl .w{font-size:12px;color:var(--ink-3)}
+
+/* stepper (workflow) */
+.flow{display:flex;gap:0;align-items:stretch;margin:4px 0 18px;overflow-x:auto}
+.flow .s{flex:1;min-width:120px;padding:10px 12px;border-top:3px solid var(--line);font-size:12.5px;color:var(--ink-3)}
+.flow .s b{display:block;color:var(--ink-2);font-weight:600;font-size:13px}
+.flow .s.done{border-top-color:var(--mint)}
+.flow .s.done b{color:var(--ink)}
+.flow .s.now{border-top-color:var(--pine)}
+.flow .s.now b{color:var(--pine)}
+
+/* spec sheet */
+.spec-sec{margin-bottom:6px}
+.spec-sec h4{font-family:var(--body);font-size:12.5px;font-weight:600;color:var(--ink-2);padding:12px 10px 6px;border-bottom:1px solid var(--line);display:flex;gap:8px;align-items:center}
+.spec-row{display:grid;grid-template-columns:34px minmax(180px,1.1fr) minmax(160px,1.4fr) 110px;gap:10px;align-items:center;padding:5px 10px;border-bottom:1px solid var(--line-2)}
+.spec-row .no{color:var(--ink-3);font-size:12px}
+.spec-row input{border:1px solid transparent;background:transparent;border-radius:6px;padding:5px 7px;width:100%}
+.spec-row input:not([readonly]){border-color:var(--line);background:#fff}
+.spec-row input.changed{border-color:var(--cu);background:#FFF6EF}
+.spec-row.internal{background:repeating-linear-gradient(135deg,transparent 0 7px,rgba(181,98,45,.045) 7px 14px)}
+.spec-row.hidden-row{opacity:.38;text-decoration:line-through}
+
+/* costing workbench */
+.cost-hero{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:0;background:var(--pine);color:#E0EEE7;border-radius:var(--r-lg);overflow:hidden}
+.cost-hero .l{padding:22px 24px}
+.cost-hero .r{background:#0B261F;padding:18px 18px 10px;position:relative}
+.cost-hero .big{font-family:var(--display);font-size:56px;font-weight:700;letter-spacing:-.035em;line-height:1;color:#fff}
+.cost-hero .big small{font-size:22px;font-weight:500;color:#9DB8AC;margin-left:6px;letter-spacing:0}
+.cost-hero .meta{display:flex;gap:22px;flex-wrap:wrap;margin-top:16px;font-size:12.5px;color:#9DB8AC}
+.cost-hero .meta b{display:block;color:#fff;font-size:16px;font-family:var(--display);font-weight:600}
+.cost-hero .pill{display:inline-flex;gap:6px;align-items:center;background:rgba(255,255,255,.08);border-radius:999px;padding:3px 10px;font-size:12px;color:#CFE3DA}
+.cost-hero .pill i{width:7px;height:7px;border-radius:50%;background:var(--mint)}
+.cost-hero .pill.manual i{background:#E0B04A}
+.unit-art{width:100%;height:auto;display:block}
+.unit-art .part{cursor:pointer;transition:opacity .15s}
+.unit-art.focus .part{opacity:.25}
+.unit-art.focus .part.on{opacity:1}
+.art-legend{display:flex;flex-wrap:wrap;gap:10px 14px;font-size:12px;color:#B7CEC4;padding:8px 2px 4px}
+.art-legend .mat i{width:9px;height:9px}
+
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:8px;overflow:hidden;background:var(--paper)}
+.seg button{border:0;background:transparent;padding:6px 12px;font-size:12.5px;color:var(--ink-2)}
+.seg button.on{background:var(--pine);color:#fff}
+
+.row-x{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.spacer{flex:1}
+
+/* charts */
+.chart svg{display:block;width:100%;height:auto;overflow:visible}
+.chart text{font-family:var(--body);font-size:11px;fill:var(--ink-3)}
+.chart .lbl{fill:var(--ink-2);font-size:11.5px}
+.chart .val{fill:var(--ink);font-size:11.5px;font-weight:600}
+.chart .grid line{stroke:var(--line-2)}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--ink-2);margin-top:6px}
+.tip{position:fixed;z-index:90;pointer-events:none;background:var(--ink);color:#fff;font-size:12px;padding:7px 9px;border-radius:7px;max-width:260px;box-shadow:0 6px 24px rgba(0,0,0,.18)}
+.tip b{font-weight:600}
+
+/* sliders */
+.sl{display:grid;grid-template-columns:150px 1fr 120px;gap:12px;align-items:center;padding:9px 0;border-bottom:1px solid var(--line-2)}
+.sl input[type=range]{width:100%;accent-color:var(--pine)}
+.sl .val{text-align:right;font-weight:600}
+.sl .delta{font-size:12px}
+
+/* SAP fetch */
+.sap-steps{list-style:none;margin:10px 0 0;padding:0;display:grid;gap:6px}
+.sap-steps li{display:flex;gap:10px;align-items:center;font-size:13px;color:var(--ink-3)}
+.sap-steps li .k{width:18px;height:18px;border-radius:50%;border:2px solid var(--line);display:grid;place-items:center;font-size:10px}
+.sap-steps li.run{color:var(--ink)}
+.sap-steps li.run .k{border-color:var(--mint);border-right-color:transparent;animation:spin .7s linear infinite}
+.sap-steps li.ok{color:var(--ink-2)}
+.sap-steps li.ok .k{background:var(--mint);border-color:var(--mint);color:#06281D}
+
+/* tree */
+.tree{font-size:13.5px}
+.tree details{margin-left:14px}
+.tree summary{cursor:pointer;padding:5px 6px;border-radius:6px;list-style:none;display:flex;gap:8px;align-items:center}
+.tree summary::-webkit-details-marker{display:none}
+.tree summary:before{content:"▸";color:var(--ink-3);font-size:11px;transition:transform .15s}
+.tree details[open]>summary:before{transform:rotate(90deg)}
+.tree summary:hover{background:var(--paper-2)}
+.tree .leaf{margin-left:30px;padding:6px 8px;border-radius:6px;display:flex;gap:10px;align-items:center;cursor:pointer}
+.tree .leaf:hover{background:var(--mint-wash)}
+.tree .ct{font-size:11.5px;color:var(--ink-3)}
+
+/* diff */
+.diff-up{color:var(--up);font-weight:600}.diff-dn{color:var(--down);font-weight:600}
+.vcard{border:1px solid var(--line);border-radius:var(--r);padding:12px 14px;background:var(--paper);cursor:pointer;position:relative}
+.vcard.sel{border-color:var(--pine);box-shadow:inset 0 0 0 1px var(--pine)}
+.vcard .vn{font-family:var(--display);font-weight:600;font-size:17px}
+
+/* mail */
+.mail{border:1px solid var(--line);border-radius:var(--r-lg);overflow:hidden;background:#fff}
+.mail .mh{padding:12px 16px;border-bottom:1px solid var(--line-2);display:grid;grid-template-columns:60px 1fr;gap:6px;font-size:13px}
+.mail .mh span{color:var(--ink-3)}
+.mail .mb{padding:16px;font-size:13.5px;white-space:pre-wrap}
+.attach{display:inline-flex;gap:8px;align-items:center;border:1px solid var(--line);border-radius:8px;padding:6px 10px;font-size:12.5px;margin:0 16px 16px;background:var(--paper-2)}
+
+/* drawers / overlays */
+.scrim{position:fixed;inset:0;background:rgba(9,25,20,.45);z-index:60;display:flex;justify-content:flex-end}
+.drawer{width:min(560px,100%);height:100%;background:var(--paper);overflow:auto;box-shadow:-20px 0 60px rgba(0,0,0,.2);animation:slide .22s ease-out}
+.drawer-h{padding:18px 20px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:10px;position:sticky;top:0;background:var(--paper);z-index:2}
+.drawer-h h3{flex:1}
+.drawer-b{padding:18px 20px;display:grid;gap:14px}
+@keyframes slide{from{transform:translateX(30px);opacity:0}}
+.modal-wrap{position:fixed;inset:0;background:rgba(9,25,20,.45);z-index:70;display:grid;place-items:start center;padding-top:12vh}
+.palette{width:min(620px,92vw);background:var(--paper);border-radius:var(--r-lg);overflow:hidden;box-shadow:0 30px 80px rgba(0,0,0,.3)}
+.palette input{border:0;border-bottom:1px solid var(--line);width:100%;padding:16px 18px;font-size:16px;outline:none;background:var(--paper)}
+.palette .res{max-height:50vh;overflow:auto;padding:6px}
+.palette .it{display:flex;gap:10px;align-items:center;padding:9px 12px;border-radius:8px;cursor:pointer}
+.palette .it.on,.palette .it:hover{background:var(--mint-wash)}
+.palette .it .k{font-size:11.5px;color:var(--ink-3);margin-left:auto}
+
+/* toasts + api inspector */
+.toasts{position:fixed;right:18px;bottom:68px;z-index:95;display:grid;gap:8px}
+.toast{background:var(--ink);color:#fff;border-radius:10px;padding:10px 14px;font-size:13px;display:flex;gap:10px;align-items:center;box-shadow:0 10px 30px rgba(0,0,0,.2);animation:slide .2s ease-out;max-width:380px}
+.toast i{width:8px;height:8px;border-radius:50%;background:var(--mint);flex:none}
+.toast.err i{background:#F08A78}
+.api-pill{position:fixed;right:18px;bottom:18px;z-index:94;display:flex;align-items:center;gap:8px;background:var(--pine);color:#CFE3DA;border:0;border-radius:999px;padding:8px 14px;font-size:12.5px;box-shadow:0 8px 24px rgba(0,0,0,.22)}
+.api-pill i{width:8px;height:8px;border-radius:50%;background:var(--mint)}
+.api-pill.busy i{animation:pulse .8s ease-in-out infinite}
+@keyframes pulse{50%{opacity:.25}}
+.api-panel{position:fixed;right:18px;bottom:62px;z-index:94;width:min(520px,92vw);max-height:46vh;overflow:auto;background:#0B1F19;color:#CFE3DA;border-radius:12px;box-shadow:0 20px 60px rgba(0,0,0,.35);font-size:12px}
+.api-panel .hd{position:sticky;top:0;background:#0B1F19;padding:10px 14px;border-bottom:1px solid rgba(255,255,255,.08);display:flex;gap:8px;align-items:center}
+.api-row{display:grid;grid-template-columns:52px 1fr 40px 54px;gap:8px;padding:6px 14px;border-bottom:1px solid rgba(255,255,255,.04)}
+.api-row .m{font-weight:700}.api-row .m.GET{color:#6EDDB4}.api-row .m.POST{color:#F2C46B}.api-row .m.PUT,.api-row .m.PATCH{color:#8DB8F2}
+.api-row .p{color:#E7F1EC;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.api-row .s{color:#6EDDB4}.api-row .ms{color:#8FB0A3;text-align:right}
+
+.demo-band{background:var(--warn-wash);color:var(--warn);font-size:12px;text-align:center;padding:4px 10px;border-bottom:1px solid #F0DCA8}
+.empty{padding:30px;text-align:center;color:var(--ink-3)}
+.bar-track{height:6px;background:var(--line-2);border-radius:6px;overflow:hidden}
+.bar-track i{display:block;height:100%;border-radius:6px}
+.note{font-size:12.5px;color:var(--ink-2);background:var(--paper-2);border-radius:8px;padding:10px 12px;border:1px solid var(--line-2)}
+.formula{font-size:12.5px;line-height:1.7;background:var(--paper-2);border-radius:8px;padding:10px 12px;border:1px solid var(--line-2)}
+.formula .o{color:var(--ink-3)}
+.upload{border:1.5px dashed var(--line);border-radius:var(--r);padding:18px;text-align:center;color:var(--ink-2);cursor:pointer;background:var(--paper)}
+.upload:hover{border-color:var(--pine-3)}
+@media (max-width:860px){.deck-top{flex-wrap:wrap;gap:10px}.source-label{display:none}.login{grid-template-columns:1fr}.login-hero h1{font-size:44px}.view{padding:18px 14px 80px}.cost-hero{grid-template-columns:1fr}.spec-row{grid-template-columns:28px 1fr 1fr}.spec-row .x{display:none}.deck-search{display:none}}
+</style></head><body>
+<script>
+/* ===== Seed data: commodity values from AICM (06 Nov 2026) + public data; everything else is labelled demo data ===== */
+const COLORS = {CU:'#B5622D', AL:'#2F7FC1', PL:'#C79A1E', RF:'#1E9C94', CP:'#8A57A8', ST:'#6E8A2A'};
+const MAT_NAME = {CU:'Copper', AL:'Aluminium', PL:'Plastic', RF:'Refrigerant', CP:'Compressor', ST:'Steel'};
+
+const COMMODITIES = [
+  {code:'CU', name:'Copper (IGT tube)', index:'LME Copper', src:'Metals-API, London (LME)', unit:'USD/MT', cur:14110, q1:12840.25, q2:13331.63, q3:14101.73, hist:[10649,11420,12380,12840,13010,13331,13890,14101,14461,14110], structure:'lme', premium:0.035, conv:92, convLabel:'Tube drawing & IGT conversion'},
+  {code:'AL', name:'Aluminium fin stock', index:'LME Aluminium', src:'Metals-API, London (LME)', unit:'USD/MT', cur:3160, q1:3080, q2:3412, q3:3241, hist:[2980,3020,3080,3150,3390,3412,3260,3241,3196,3160], structure:'lme', premium:0.04, conv:68, convLabel:'Fin stock rolling & coating'},
+  {code:'FX', name:'INR per USD', index:'INR per USD', src:'Metals-API, FX (global)', unit:'INR/USD', cur:94.44, q1:91.2, q2:94.1, q3:95.82, hist:[88.6,89.4,90.6,91.2,93.1,94.1,96.2,95.82,96.4,94.44], structure:'fx'},
+  {code:'ST', name:'Steel CRC / GI sheet', index:'Hot Rolled Coil', src:'Metals-API, India', unit:'INR/MT', cur:45083.97, q1:47200, q2:48150, q3:46380, hist:[49800,48900,47600,47200,48400,48150,47100,46380,45900,45084], structure:'domestic', spread:10200, freight:1.8},
+  {code:'PL', name:'ABS / PP resin', index:'Styrene Monomer', src:'Polymerupdate, India', unit:'USD/MT', cur:1590, q1:1480, q2:1525, q3:1514, hist:[1420,1450,1470,1480,1510,1525,1500,1514,1540,1590], structure:'polymer', compounding:10},
+  {code:'CP', name:'Rotary inverter compressor (1.5 TR)', index:'Vendor CIF quote (LPP)', src:'SAP LPP + customs duty stack', unit:'USD/unit', cur:72, q1:70, q2:71, q3:72, hist:[69,69,70,70,71,71,72,72,72,72], structure:'import', bcd:0.15, aidc:0.0225, sws:0.10, clearing:0.015, igst:0.18, hsn:'8414 30 00'},
+  {code:'RF', name:'Refrigerant R32', index:'Domestic supplier quote', src:'SAP LPP', unit:'INR/kg', cur:520, q1:540, q2:510, q3:525, hist:[560,550,545,540,520,510,515,525,522,520], structure:'flat'}
+];
+
+const QUARTER_BASIS = {label:'Q3 FY26-27 average (Jul–Sep 2026)', short:'Q3 avg', quoteFor:'Q4 (Oct–Dec 2026)'};
+
+/* Chassis masters — common parts (~80%). Values are demo assumptions to be replaced with Amber's chassis BOMs */
+const IDU_CHASSIS = {
+  I2:{code:'I2', label:'I2 indoor chassis', width:820, tr:'0.8–1.0 TR', s:0.8},
+  I3:{code:'I3', label:'I3 indoor chassis', width:960, tr:'1.5 TR', s:1},
+  I4:{code:'I4', label:'I4 indoor chassis', width:1080, tr:'1.8–2.0 TR', s:1.25}
+};
+const ODU_CHASSIS = {
+  O20:{code:'O20', label:'O20 outdoor chassis (20" fan)', fan:20, tr:'0.8–1.0 TR', s:0.8, cp:0.82},
+  O22:{code:'O22', label:'O22 outdoor chassis (22" fan)', fan:22, tr:'1.5 TR', s:1, cp:1},
+  O24:{code:'O24', label:'O24 outdoor chassis (24" fan)', fan:24, tr:'1.8–2.0 TR', s:1.3, cp:1.32}
+};
+const IDU_LINES = [
+  {pc:'EVC-CU', name:'Evaporator coil, copper tube 7mm IGT', type:'mat', m:'CU', kg:1.35, scrap:.06, proc:85, zone:'coil'},
+  {pc:'EVC-AL', name:'Evaporator fins, hydrophilic Al', type:'mat', m:'AL', kg:0.95, scrap:.08, proc:20, zone:'coil'},
+  {pc:'IDB-ABS', name:'Chassis base moulding', type:'mat', m:'PL', kg:1.60, scrap:.03, proc:38, zone:'body'},
+  {pc:'CFB-ABS', name:'Cross-flow blower wheel', type:'mat', m:'PL', kg:0.42, scrap:.03, proc:22, zone:'fan'},
+  {pc:'DRP-PP', name:'Drain pan', type:'mat', m:'PL', kg:0.45, scrap:.03, proc:14, zone:'body'},
+  {pc:'LVR-ABS', name:'Louver & vane set', type:'mat', m:'PL', kg:0.25, scrap:.03, proc:12, zone:'louver'},
+  {pc:'MTP-CRC', name:'Wall mounting plate', type:'mat', m:'ST', kg:0.65, scrap:.08, proc:10, zone:'plate'},
+  {pc:'STB-CU', name:'Indoor connecting stubs', type:'mat', m:'CU', kg:0.18, scrap:.04, proc:12, zone:'coil'},
+  {pc:'BLDC-IM', name:'BLDC indoor fan motor', type:'bo', lpp:640, avg:612, zone:'fan'},
+  {pc:'PCB-IDU', name:'Inverter control PCB (IDU)', type:'bo', lpp:780, avg:802, zone:'pcb'},
+  {pc:'SWM-2', name:'Swing motors (2 nos)', type:'bo', lpp:92, avg:88, zone:'louver'},
+  {pc:'HRN-IDU', name:'Thermistors & wiring harness', type:'bo', lpp:118, avg:110, zone:'pcb'},
+  {pc:'FST-IDU', name:'Fasteners & clips kit', type:'bo', lpp:28, avg:27, zone:'body'}
+];
+const ODU_LINES = [
+  {pc:'CDC-CU', name:'Condenser coil, copper tube 7mm', type:'mat', m:'CU', kg:2.60, scrap:.06, proc:140, zone:'coil'},
+  {pc:'CDC-AL', name:'Condenser fins, Al', type:'mat', m:'AL', kg:1.70, scrap:.08, proc:30, zone:'coil'},
+  {pc:'CAB-GI', name:'Cabinet panels, GI sheet', type:'mat', m:'ST', kg:6.80, scrap:.10, proc:120, zone:'cabinet'},
+  {pc:'BSP-GI', name:'Base pan, GI sheet', type:'mat', m:'ST', kg:2.40, scrap:.10, proc:45, zone:'base'},
+  {pc:'AXF-PP', name:'Axial fan blade', type:'mat', m:'PL', kg:0.55, scrap:.03, proc:18, zone:'fan'},
+  {pc:'ICT-CU', name:'Interconnect & capillary tubing', type:'mat', m:'CU', kg:0.90, scrap:.05, proc:55, zone:'pipe'},
+  {pc:'R32-CHG', name:'Refrigerant charge R32', type:'mat', m:'RF', kg:0.95, scrap:.02, proc:0, zone:'pipe'},
+  {pc:'CMP-RI', name:'Rotary inverter compressor', type:'cp', zone:'comp'},
+  {pc:'BLDC-OM', name:'BLDC outdoor fan motor', type:'bo', lpp:820, avg:790, zone:'fan'},
+  {pc:'PCB-ODU', name:'Inverter drive PCB (ODU)', type:'bo', lpp:1450, avg:1390, zone:'pcb'},
+  {pc:'EEV-4W', name:'EEV / 4-way valve', type:'bo', lpp:380, avg:395, zone:'pipe'},
+  {pc:'SVV-BR', name:'Service valves, brass', type:'bo', lpp:210, avg:198, zone:'pipe'},
+  {pc:'EBX-HRN', name:'Electrical box & harness', type:'bo', lpp:260, avg:248, zone:'pcb'},
+  {pc:'AVM-FST', name:'Anti-vibration mounts & fasteners', type:'bo', lpp:85, avg:80, zone:'base'}
+];
+
+/* Exclusive parts catalogue (~20%), brand/model specific */
+const EXCLUSIVES = {
+  FAS:{name:'Front fascia & panel, brand design', type:'mat', m:'PL', kg:1.10, proc:65, sign:1},
+  DSP:{name:'Display PCB with brand logo window', type:'bo', price:185, sign:1},
+  RMT:{name:'Remote control, brand moulded', type:'bo', price:140, sign:1},
+  CTN:{name:'Printed cartons, IDU + ODU', type:'bo', price:310, sign:1},
+  NMP:{name:'Brand nameplate & badges', type:'bo', price:22, sign:1},
+  WIF:{name:'Wi-Fi smart module', type:'bo', price:365, sign:1},
+  BLF:{name:'Blue-fin anti-corrosion coating', type:'bo', price:145, sign:1},
+  XCU:{name:'Extra copper for 5-star coil rows', type:'mat', m:'CU', kg:0.45, proc:25, sign:1},
+  PMF:{name:'PM2.5 filter', type:'bo', price:95, sign:1},
+  CRD:{name:'Credit: generic panel removed from chassis', type:'bo', price:210, sign:-1}
+};
+
+const OVERHEADS = {assembly:{IDU:420, ODU:610}, freightPct:0.012, warrantyPct:0.02, marginPct:0.08,
+  contingency:{label:'Container held at port', amount:100000, lotQty:2500, capPct:0.006}};
+
+const BRANDS = ['Daikin','Voltas','LG','Hitachi','Panasonic','Whirlpool','Godrej'];
+const BRAND_TONE = {Daikin:'#2F7FC1', Voltas:'#4F5FB0', LG:'#8A57A8', Hitachi:'#465650', Panasonic:'#1E9C94', Whirlpool:'#C79A1E', Godrej:'#6E8A2A'};
+
+const MODELS = [
+  {id:'M-DK18', brand:'Daikin', series:'Inverter split', name:'Daikin 1.5 TR 5-star inverter split', code:'DK-FTKM18-5S', idu:'I3', odu:'O22', tr:1.5, star:5, iseer:5.2, excl:['FAS','DSP','RMT','CTN','NMP','XCU','PMF','CRD'], wifi:false},
+  {id:'M-VL18', brand:'Voltas', series:'Inverter split', name:'Voltas 1.5 TR 3-star inverter split', code:'VL-183V-3S', idu:'I3', odu:'O22', tr:1.5, star:3, iseer:4.1, excl:['FAS','RMT','CTN','NMP','CRD'], wifi:false},
+  {id:'M-LG24', brand:'LG', series:'AI dual inverter', name:'LG 2.0 TR 5-star dual inverter split', code:'LG-24K-5S', idu:'I4', odu:'O24', tr:2, star:5, iseer:5.0, excl:['FAS','DSP','RMT','CTN','NMP','WIF','XCU','BLF','CRD'], wifi:true},
+  {id:'M-GD12', brand:'Godrej', series:'Inverter split', name:'Godrej 1.0 TR 3-star inverter split', code:'GD-12N-3S', idu:'I2', odu:'O20', tr:1, star:3, iseer:4.0, excl:['FAS','RMT','CTN','NMP'], wifi:false},
+  {id:'M-HT18', brand:'Hitachi', series:'Inverter split', name:'Hitachi 1.5 TR 4-star inverter split', code:'HT-18Z-4S', idu:'I3', odu:'O22', tr:1.5, star:4, iseer:4.6, excl:['FAS','DSP','RMT','CTN','NMP','BLF','CRD'], wifi:false},
+  {id:'M-PN18', brand:'Panasonic', series:'Smart inverter', name:'Panasonic 1.5 TR 3-star Wi-Fi inverter split', code:'PN-18W-3S', idu:'I3', odu:'O22', tr:1.5, star:3, iseer:4.2, excl:['FAS','DSP','RMT','CTN','NMP','WIF','CRD'], wifi:true},
+  {id:'M-WP12', brand:'Whirlpool', series:'Inverter split', name:'Whirlpool 1.0 TR 5-star inverter split', code:'WP-12M-5S', idu:'I2', odu:'O20', tr:1, star:5, iseer:5.1, excl:['FAS','RMT','CTN','NMP','XCU'], wifi:false}
+];
+
+const PEOPLE = {
+  rahul:{id:'rahul', name:'Rahul Bansal', role:'kam', title:'Key Account Manager', tone:'#2F7FC1'},
+  navdeep:{id:'navdeep', name:'Navdeep', role:'lead', title:'Team Lead, R&D', tone:'#8A57A8'},
+  mahendra:{id:'mahendra', name:'Mahendra', role:'lead', title:'Team Lead, R&D', tone:'#6E8A2A'},
+  ritika:{id:'ritika', name:'Ritika Sharma', role:'rnd', title:'R&D Engineer', tone:'#1E9C94'},
+  arjun:{id:'arjun', name:'Arjun Mehta', role:'rnd', title:'R&D Engineer', tone:'#C79A1E'},
+  sana:{id:'sana', name:'Sana Qureshi', role:'rnd', title:'R&D Engineer', tone:'#B8392A'},
+  vivek:{id:'vivek', name:'Vivek Arora', role:'costing', title:'Costing Manager', tone:'#B5622D'},
+  pooja:{id:'pooja', name:'Pooja Nair', role:'costing', title:'Costing Analyst', tone:'#22564A'},
+  admin:{id:'admin', name:'IT Admin', role:'admin', title:'System administrator', tone:'#465650'}
+};
+const ROLES = {
+  kam:{label:'Key Account', can:'Logs customer requests, sees customer-facing sheets only', modules:['home','requests','library']},
+  lead:{label:'Team Lead', can:'Allocates requests to R&D, approves or returns specs', modules:['home','requests','spec','library']},
+  rnd:{label:'R&D Engineer', can:'Fills the model spec sheet; no access to costing', modules:['home','requests','spec','library']},
+  costing:{label:'Costing', can:'Full costing, commodities, simulation, quotes and sending', modules:['home','requests','spec','costing','commodities','simulation','bom','history','library']},
+  admin:{label:'Admin', can:'Users, roles, permissions and audit trail', modules:['home','requests','library','admin']}
+};
+const LOGIN_CARDS = ['rahul','navdeep','ritika','vivek','admin'];
+
+/* Spec sheet template — ~70 rows; internal rows are stripped from the customer sheet */
+const SPEC_TEMPLATE = [
+  ['General',[['brand','Brand'],['iduCode','Indoor unit model code'],['oduCode','Outdoor unit model code'],['tr','Capacity (TR)'],['capW','Rated cooling capacity (W)'],['star','BEE star rating'],['iseer','ISEER'],['ref','Refrigerant']]],
+  ['Electrical',[['volt','Voltage / frequency / phase'],['pin','Rated power input (W)'],['amp','Rated current (A)'],['vrange','Operating voltage range'],['stab','Stabiliser-free operation'],['plug','Power cord & plug']]],
+  ['Indoor unit',[['iduCh','Indoor chassis',1],['iduDim','Dimensions W×H×D (mm)'],['iduNet','Net weight (kg)'],['iduGross','Gross weight (kg)'],['air','Airflow, high (CMH)'],['iduDb','Noise, indoor (dB)'],['ifm','Indoor fan motor'],['swing','Louver swing'],['filter','Filter type'],['disp','Display'],['panel','Front panel finish'],['evTube','Evaporator tube'],['evRows','Evaporator rows / FPI',1],['drain','Drain connection side']]],
+  ['Outdoor unit',[['oduCh','Outdoor chassis',1],['oduDim','Dimensions W×H×D (mm)'],['oduNet','Net weight (kg)'],['oduGross','Gross weight (kg)'],['fan','Fan diameter'],['oduDb','Noise, outdoor (dB)'],['cond','Condenser coil material'],['cdTube','Condenser tube'],['cdRows','Condenser rows / FPI',1],['fin','Fin treatment'],['cab','Cabinet material'],['amb','Max operating ambient (°C)']]],
+  ['Compressor',[['cpType','Compressor type'],['cpMake','Compressor make',1],['cpModel','Compressor model',1],['cpCc','Displacement (cc)'],['oil','Oil type'],['charge','Refrigerant charge (kg)']]],
+  ['Piping & installation',[['pipe','Pipe size, liquid / gas'],['maxLen','Max pipe length (m)'],['maxEl','Max elevation (m)'],['stdLen','Standard pipe supplied (m)'],['kit','Installation kit']]],
+  ['Features',[['wifi','Wi-Fi / smart control'],['conv','Convertible modes'],['sleep','Sleep mode'],['restart','Auto restart'],['clean','Self-clean'],['pm25','PM2.5 filter'],['remote','Remote type']]],
+  ['Packaging & compliance',[['pack','Packaging'],['load','Loading qty, 40ft HC',1],['bis','BIS / IS 1391 compliance'],['warr','Warranty, product / compressor']]],
+  ['Internal costing references',[['chRef','Chassis cost reference',1],['commonPct','Common parts share',1],['exclRef','Exclusive parts list',1],['cuKg','Copper content (kg)',1],['alKg','Aluminium content (kg)',1],['stKg','Steel content (kg)',1],['plKg','Plastic content (kg)',1],['target','Customer target price (₹/set)',1],['cpVendor','Compressor vendor & LPP ref',1],['note','Costing notes',1]]]
+];
+
+function specFor(model){
+  const tr = model.tr, s = IDU_CHASSIS[model.idu].s, o = ODU_CHASSIS[model.odu];
+  const capW = {1:3500, 1.5:5200, 2:6600}[tr];
+  const w = engineWeights(model);
+  return {
+    brand:model.brand, iduCode:model.code+'-I', oduCode:model.code+'-O', tr:tr.toFixed(1), capW:capW, star:model.star+' star (BEE 2026)', iseer:model.iseer, ref:'R32 (GWP 675)',
+    volt:'230 V / 50 Hz / 1 ph', pin:Math.round(capW/ (model.iseer*0.86)), amp:(capW/(model.iseer*0.86)/230).toFixed(1), vrange:'145–290 V', stab:'Yes', plug:'3-pin, 1.8 m',
+    iduCh:model.idu, iduDim:IDU_CHASSIS[model.idu].width+' × '+(s>1?325:s<1?285:298)+' × '+(s>1?238:220), iduNet:(9.5*s+1).toFixed(1), iduGross:(12*s+1.5).toFixed(1), air:Math.round(820*s+180), iduDb:(38+s*4).toFixed(0), ifm:'BLDC', swing:'4-way auto', filter:model.excl.includes('PMF')?'PM2.5 + anti-dust':'Anti-dust', disp:model.excl.includes('DSP')?'Hidden LED, brand window':'LED', panel:model.brand+' design, gloss white', evTube:'7 mm inner-grooved copper', evRows:(model.star>=5?'3 rows':'2 rows')+' / 18 FPI', drain:'Left & right',
+    oduCh:model.odu, oduDim:({O20:'780 × 550 × 270',O22:'835 × 555 × 300',O24:'895 × 640 × 330'})[model.odu], oduNet:(24*o.s+1).toFixed(1), oduGross:(27*o.s+2).toFixed(1), fan:o.fan+'"', oduDb:(50+o.s*4).toFixed(0), cond:'Copper', cdTube:'7 mm smooth copper', cdRows:(model.star>=5?'2 rows':'1.5 rows')+' / 20 FPI', fin:model.excl.includes('BLF')?'Blue-fin anti-corrosion':'Hydrophilic', cab:'GI, powder coated', amb:52,
+    cpType:'Rotary inverter', cpMake:'GMCC / Highly (dual source)', cpModel:'KSN'+Math.round(98*o.cp)+'D', cpCc:(10.2*o.cp).toFixed(1), oil:'POE', charge:(0.95*o.s).toFixed(2),
+    pipe:tr>=2?'1/4" / 5/8"':'1/4" / 1/2"', maxLen:tr>=2?20:15, maxEl:10, stdLen:3, kit:'Copper pipe 3 m, drain hose, wall sleeve',
+    wifi:model.wifi?'Yes, app control':'No', conv:'5-in-1', sleep:'Yes', restart:'Yes', clean:'Yes', pm25:model.excl.includes('PMF')?'Yes':'No', remote:model.brand+' backlit IR',
+    pack:'Corrugated carton + EPS', load:tr>=2?'96 sets':'120 sets', bis:'Yes', warr:'1 yr / 10 yr',
+    chRef:model.idu+' + '+model.odu+' chassis master', commonPct:'≈80%', exclRef:model.excl.length+' items: '+model.excl.join(', '), cuKg:w.CU.toFixed(2), alKg:w.AL.toFixed(2), stKg:w.ST.toFixed(2), plKg:w.PL.toFixed(2), target:'', cpVendor:'GMCC, LPP USD 72 (Oct 2026)', note:''
+  };
+}
+
+/* ===== Costing engine ===== */
+function snapshotFrom(mode, manual){
+  const snap = {};
+  COMMODITIES.forEach(c=>{ snap[c.code] = mode==='manual' ? manual[c.code] : c.q3; });
+  return snap;
+}
+function landed(code, snap){
+  const c = COMMODITIES.find(x=>x.code===code), fx = snap.FX, v = snap[code];
+  const out = {code, steps:[], value:0, unit:'₹/kg'};
+  if(c.structure==='lme'){
+    const base = v*fx/1000, prem = base*c.premium;
+    out.steps = [['Index '+c.index, v, c.unit],['× FX ÷ 1000 → base metal', base, '₹/kg'],['+ supplier premium '+(c.premium*100).toFixed(1)+'%', prem, '₹/kg'],['+ '+c.convLabel, c.conv, '₹/kg']];
+    out.value = base+prem+c.conv;
+  } else if(c.structure==='domestic'){
+    const base = (v+c.spread)/1000;
+    out.steps = [['HRC index', v, 'INR/MT'],['+ CRC/GI spread', c.spread, 'INR/MT'],['÷ 1000 → base', base, '₹/kg'],['+ inbound freight', c.freight, '₹/kg']];
+    out.value = base + c.freight;
+  } else if(c.structure==='polymer'){
+    const base = v*fx/1000;
+    out.steps = [['Styrene monomer index', v, c.unit],['× FX ÷ 1000', base, '₹/kg'],['+ compounding & masterbatch', c.compounding, '₹/kg']];
+    out.value = base + c.compounding;
+  } else if(c.structure==='import'){
+    const cif = v*fx, bcd = cif*c.bcd, aidc = cif*c.aidc, sws = (bcd+aidc)*c.sws, clr = cif*c.clearing, igst=(cif+bcd+aidc+sws)*c.igst;
+    out.unit = '₹/unit';
+    out.steps = [['CIF USD × FX', cif, '₹'],['+ Basic customs duty 15%', bcd, '₹'],['+ AIDC 2.25%', aidc, '₹'],['+ Social welfare surcharge 10% on duty', sws, '₹'],['+ Clearing & port 1.5%', clr, '₹'],['IGST 18% (input credit, not costed)', igst, '₹', true]];
+    out.value = cif+bcd+aidc+sws+clr;
+  } else if(c.structure==='flat'){
+    out.steps = [['Supplier rate', v, '₹/kg']]; out.value = v;
+  } else { out.value = v; out.unit = c.unit; }
+  return out;
+}
+function rates(snap){ const r={}; ['CU','AL','ST','PL','CP','RF'].forEach(k=>r[k]=landed(k,snap).value); return r; }
+
+function engineWeights(model){
+  const s=IDU_CHASSIS[model.idu].s, o=ODU_CHASSIS[model.odu].s, w={CU:0,AL:0,ST:0,PL:0,RF:0};
+  IDU_LINES.forEach(l=>{ if(l.type==='mat') w[l.m]+=l.kg*s; });
+  ODU_LINES.forEach(l=>{ if(l.type==='mat') w[l.m]+=l.kg*o; });
+  model.excl.forEach(k=>{ const e=EXCLUSIVES[k]; if(e.type==='mat') w[e.m]+=e.kg; });
+  return w;
+}
+
+function compute(model, snap, opts={}){
+  const R = rates(snap), excl = opts.excl || model.excl, priceMode = opts.priceMode || 'lpp';
+  const s = IDU_CHASSIS[model.idu].s, o = ODU_CHASSIS[model.odu], lines=[], byMat={CU:0,AL:0,ST:0,PL:0,RF:0,CP:0,BO:0};
+  const boScale = x => x<1 ? .86 : x>1 ? 1.2 : 1;
+  function add(unit, l, sc){
+    let cost=0, kg=0, price=0, avg=0;
+    if(l.type==='mat'){ kg=l.kg*sc; cost = kg*(1+l.scrap)*R[l.m] + l.proc*(sc>1?1.15:sc<1?.9:1); byMat[l.m]+=cost; }
+    else if(l.type==='cp'){ cost = R.CP*o.cp; byMat.CP+=cost; }
+    else { price = l.lpp*boScale(sc); avg = l.avg*boScale(sc); cost = priceMode==='avg'?avg:price; byMat.BO+=cost; }
+    lines.push({unit, pc:l.pc+'-'+(unit==='IDU'?model.idu:model.odu), name:l.name, type:l.type, m:l.m, kg, cost, lpp:price, avg, zone:l.zone});
+  }
+  IDU_LINES.forEach(l=>add('IDU', l, s));
+  ODU_LINES.forEach(l=>add('ODU', l, o.s));
+  const common = lines.reduce((a,b)=>a+b.cost,0);
+  const exLines = excl.map(k=>{ const e=EXCLUSIVES[k]; let cost = e.type==='mat' ? (e.kg*1.04*R[e.m]+e.proc) : (opts.exPrice&&opts.exPrice[k]!=null?opts.exPrice[k]:e.price); if(e.type==='mat') byMat[e.m]+=cost; else byMat.BO+=cost*e.sign; return {k, name:e.name, type:e.type, m:e.m, kg:e.kg||0, cost:cost*e.sign, sign:e.sign}; });
+  const exclusive = exLines.reduce((a,b)=>a+b.cost,0);
+  const material = common + exclusive;
+  const assembly = OVERHEADS.assembly.IDU + OVERHEADS.assembly.ODU;
+  const freight = material*OVERHEADS.freightPct, warranty = material*OVERHEADS.warrantyPct;
+  const ct = OVERHEADS.contingency, contRaw = ct.amount/ct.lotQty, contCap = material*ct.capPct, contingency = opts.noCont?0:Math.min(contRaw, contCap);
+  const cost = material + assembly + freight + warranty + contingency;
+  const margin = cost*OVERHEADS.marginPct;
+  const total = cost + margin;
+  const weights = engineWeights({...model, excl});
+  return {lines, exLines, common, exclusive, material, assembly, freight, warranty, contingency, contRaw, contCap, cost, margin, total, byMat, weights, R};
+}
+
+/* ===== Requests, versions, audit seed ===== */
+function d(s){ return s; }
+const SEED_REQUESTS = [
+  {id:'REQ-2611-014', model:'M-DK18', received:'2026-10-02', due:'2026-10-20', status:'SENT', priority:'High', lead:'navdeep', assignee:'ritika', via:'Email from Daikin sourcing', note:'Annual refresh, 5-star variant with PM2.5 filter.'},
+  {id:'REQ-2611-017', model:'M-VL18', received:'2026-10-21', due:'2026-11-14', status:'COSTING', priority:'High', lead:'mahendra', assignee:'arjun', via:'Email from Voltas sourcing', note:'Customer target ₹21,500 per set. Wants Q4 pricing.'},
+  {id:'REQ-2611-019', model:'M-GD12', received:'2026-10-28', due:'2026-11-18', status:'RND', priority:'Medium', lead:'navdeep', assignee:'ritika', via:'Call from Godrej category team', note:'1.0 TR entry model, cost-down vs last year.'},
+  {id:'REQ-2611-021', model:'M-LG24', received:'2026-10-30', due:'2026-11-20', status:'SUBMITTED', priority:'High', lead:'mahendra', assignee:'sana', via:'Email from LG procurement', note:'Wi-Fi + blue fin. Coastal market variant.'},
+  {id:'REQ-2611-022', model:'M-HT18', received:'2026-11-06', due:'2026-11-27', status:'NEW', priority:'Medium', lead:null, assignee:null, via:'Email from Hitachi sourcing', note:'4-star with blue fin for South markets.'},
+  {id:'REQ-2611-023', model:'M-PN18', received:'2026-11-09', due:'2026-11-30', status:'NEW', priority:'Low', lead:null, assignee:null, via:'Email from Panasonic', note:'Smart variant, Wi-Fi module from customer-nominated vendor.'},
+  {id:'REQ-2610-008', model:'M-WP12', received:'2026-10-08', due:'2026-11-12', status:'APPROVED', priority:'Medium', lead:'navdeep', assignee:'arjun', via:'Email from Whirlpool', note:'5-star 1.0 TR, spec approved, ready for costing.'}
+];
+const STATUS = {
+  NEW:{label:'New, unallocated', step:0}, ALLOCATED:{label:'Allocated to R&D', step:1}, RND:{label:'R&D filling spec', step:1}, RETURNED:{label:'Returned to R&D', step:1},
+  SUBMITTED:{label:'Awaiting lead approval', step:2}, APPROVED:{label:'Spec approved', step:3}, COSTING:{label:'Costing in progress', step:4}, COSTED:{label:'Costed, ready to send', step:5}, SENT:{label:'Sent to customer', step:6}
+};
+const FLOW = ['Request logged','Allocated to R&D','Spec submitted','Spec approved','Costing','Costed','Sent to customer'];
+
+/* historical commodity snapshots for versions (2025 from AICM YoY average 9,941) */
+const SNAPS = {
+  'Q1-2025':{CU:9350,AL:2620,FX:86.9,ST:52400,PL:1210,CP:68,RF:575},
+  'Q2-2025':{CU:9620,AL:2480,FX:85.6,ST:51200,PL:1180,CP:68,RF:570},
+  'Q3-2025':{CU:9880,AL:2590,FX:87.4,ST:50300,PL:1240,CP:69,RF:565},
+  'Q4-2025':{CU:10900,AL:2790,FX:88.9,ST:49600,PL:1300,CP:69,RF:560},
+  'Q1-2026':{CU:12840.25,AL:3080,FX:91.2,ST:47200,PL:1480,CP:70,RF:540},
+  'Q2-2026':{CU:13331.63,AL:3412,FX:94.1,ST:48150,PL:1525,CP:71,RF:510},
+  'Q3-2026':{CU:14101.73,AL:3241,FX:95.82,ST:46380,PL:1514,CP:72,RF:525}
+};
+const SEED_VERSIONS = [
+  {model:'M-DK18', req:'REQ-2603-004', v:1, quarter:'Q2 2026', basis:'Q1-2026', on:'2026-04-06', by:'vivek', source:'Manual', status:'SENT', note:'First quote for 5-star refresh.'},
+  {model:'M-DK18', req:'REQ-2606-011', v:2, quarter:'Q3 2026', basis:'Q2-2026', on:'2026-07-04', by:'pooja', source:'AICM', status:'SENT', note:'Re-priced for copper move.'},
+  {model:'M-DK18', req:'REQ-2611-014', v:3, quarter:'Q4 2026', basis:'Q3-2026', on:'2026-10-16', by:'vivek', source:'AICM', status:'SENT', note:'PM2.5 filter added, panel credit applied.'},
+  {model:'M-VL18', req:'REQ-2502-019', v:1, quarter:'Q2 2025', basis:'Q1-2025', on:'2025-04-11', by:'vivek', source:'Manual', status:'SENT', note:'Excel era quote, migrated.'},
+  {model:'M-VL18', req:'REQ-2509-007', v:2, quarter:'Q4 2025', basis:'Q3-2025', on:'2025-10-09', by:'pooja', source:'Manual', status:'SENT', note:''},
+  {model:'M-VL18', req:'REQ-2603-012', v:3, quarter:'Q2 2026', basis:'Q1-2026', on:'2026-04-14', by:'pooja', source:'AICM', status:'SENT', note:''},
+  {model:'M-LG24', req:'REQ-2506-003', v:1, quarter:'Q3 2025', basis:'Q2-2025', on:'2025-07-02', by:'vivek', source:'Manual', status:'SENT', note:''},
+  {model:'M-LG24', req:'REQ-2512-010', v:2, quarter:'Q1 2026', basis:'Q4-2025', on:'2026-01-08', by:'vivek', source:'Manual', status:'SENT', note:''},
+  {model:'M-GD12', req:'REQ-2509-022', v:1, quarter:'Q4 2025', basis:'Q3-2025', on:'2025-10-18', by:'pooja', source:'Manual', status:'SENT', note:''},
+  {model:'M-WP12', req:'REQ-2601-005', v:1, quarter:'Q1 2026', basis:'Q4-2025', on:'2026-01-12', by:'pooja', source:'Manual', status:'SENT', note:''},
+  {model:'M-HT18', req:'REQ-2604-016', v:1, quarter:'Q2 2026', basis:'Q1-2026', on:'2026-04-20', by:'vivek', source:'AICM', status:'SENT', note:''}
+];
+
+/* ===== Mock API layer: in-memory DB, persisted per browser, simulated latency + request log ===== */
+const STORE_KEY = 'chassisiq-poc-v1';
+let DB;
+function freshDB(){
+  const manual = {}; COMMODITIES.forEach(c=>manual[c.code]=c.q3);
+  const requests = SEED_REQUESTS.map(r=>{
+    const m = MODELS.find(x=>x.id===r.model);
+    const spec = specFor(m);
+    const hist = [{t:r.received+' 10:12', who:'rahul', a:'Logged request', n:r.via}];
+    const st = STATUS[r.status].step;
+    if(r.lead) hist.push({t:r.received+' 15:40', who:r.lead, a:'Allocated to '+PEOPLE[r.assignee].name, n:'Due '+r.due});
+    if(st>=2) hist.push({t:addDays(r.received,4)+' 17:05', who:r.assignee, a:'Submitted spec sheet', n:'Spec v1'});
+    if(st>=3) hist.push({t:addDays(r.received,5)+' 11:20', who:r.lead, a:'Approved spec', n:'Locked for costing'});
+    if(st>=4) hist.push({t:addDays(r.received,6)+' 09:30', who:'vivek', a:'Started costing', n:'Source: AICM'});
+    if(st>=6) hist.push({t:addDays(r.received,14)+' 18:10', who:'vivek', a:'Sent customer sheet', n:'v3 to sourcing@daikin (demo)'});
+    return {...r, spec, specLog:[], hist, versions:[]};
+  });
+  const versions = SEED_VERSIONS.map((v,i)=>{
+    const m = MODELS.find(x=>x.id===v.model);
+    const snap = SNAPS[v.basis];
+    let excl = m.excl.slice();
+    if(v.model==='M-DK18' && v.v<3) excl = excl.filter(k=>k!=='PMF'&&k!=='CRD');
+    if(v.model==='M-VL18' && v.v===1) excl = excl.filter(k=>k!=='CRD');
+    const r = compute(m, snap, {excl});
+    return {id:'VER-'+(1000+i), ...v, snap, excl, total:r.total, material:r.material, sentTo:'sourcing@'+m.brand.toLowerCase()+'.example'};
+  });
+  return {manual, manualFile:null, requests, versions, scenarios:[], audit:[
+    {t:'2026-11-10 18:04', who:'vivek', a:'Synced commodity rates from AICM', obj:'Commodity master'},
+    {t:'2026-11-10 16:30', who:'navdeep', a:'Approved spec', obj:'REQ-2610-008'},
+    {t:'2026-11-09 11:15', who:'rahul', a:'Logged request', obj:'REQ-2611-023'}
+  ], mails:[], lastSync:'2026-11-06 01:13'};
+}
+function addDays(s,n){ const d=new Date(s+'T00:00:00'); d.setDate(d.getDate()+n); return d.toISOString().slice(0,10); }
+function loadDB(){ try{ const s = localStorage.getItem(STORE_KEY); if(s){ DB = JSON.parse(s); return; } }catch(e){} DB = freshDB(); }
+function saveDB(){ try{ localStorage.setItem(STORE_KEY, JSON.stringify(DB)); }catch(e){} }
+function resetDB(){ DB = freshDB(); saveDB(); }
+function nowStamp(){ const d=new Date(); const p=n=>String(n).padStart(2,'0'); return '2026-11-11 '+p(d.getHours())+':'+p(d.getMinutes()); }
+function audit(who, a, obj){ DB.audit.unshift({t:nowStamp(), who, a, obj}); }
+
+const API_LOG = []; let apiBusy = 0; const apiListeners = [];
+function apiCall(method, path, fn, opts={}){
+  apiBusy++; apiListeners.forEach(f=>f());
+  const ms = opts.ms || (180 + Math.round(Math.random()*420));
+  const t0 = performance.now();
+  return new Promise((res, rej)=>{
+    setTimeout(()=>{
+      let out, status = method==='POST'?201:200;
+      try{ out = fn ? fn() : null; }catch(e){ status = e.status||400; API_LOG.unshift({method, path, status, ms:Math.round(performance.now()-t0), err:e.message}); apiBusy--; apiListeners.forEach(f=>f()); rej(e); return; }
+      saveDB();
+      API_LOG.unshift({method, path, status, ms:Math.round(performance.now()-t0)});
+      if(API_LOG.length>80) API_LOG.pop();
+      apiBusy--; apiListeners.forEach(f=>f());
+      res(out);
+    }, ms);
+  });
+}
+function forbid(msg){ const e = new Error(msg||'Forbidden for this role'); e.status=403; throw e; }
+
+const api = {
+  login: (uid)=>apiCall('POST','/api/auth/login', ()=>({user:PEOPLE[uid], token:'demo.'+uid})),
+  requests: ()=>apiCall('GET','/api/requests', ()=>DB.requests),
+  createRequest: (data, who)=>apiCall('POST','/api/requests', ()=>{
+    const m = MODELS.find(x=>x.id===data.model);
+    const n = String(24 + DB.requests.filter(r=>r.id.startsWith('REQ-2611')).length).padStart(3,'0');
+    const r = {id:'REQ-2611-'+n, model:data.model, received:'2026-11-11', due:data.due, status:'NEW', priority:data.priority, lead:null, assignee:null, via:data.via, note:data.note, spec:specFor(m), specLog:[], hist:[{t:nowStamp(), who, a:'Logged request', n:data.via}], versions:[]};
+    DB.requests.unshift(r); audit(who,'Logged request', r.id); return r;
+  }),
+  allocate: (id, assignee, who)=>apiCall('PATCH','/api/requests/'+id+'/allocate', ()=>{
+    if(PEOPLE[who].role!=='lead') forbid('Only team leads can allocate');
+    const r = DB.requests.find(x=>x.id===id); r.lead = who; r.assignee = assignee; r.status='RND';
+    r.hist.push({t:nowStamp(), who, a:'Allocated to '+PEOPLE[assignee].name, n:'Due '+r.due}); audit(who,'Allocated to '+PEOPLE[assignee].name, id); return r;
+  }),
+  saveSpec: (id, changes, who)=>apiCall('PUT','/api/requests/'+id+'/spec', ()=>{
+    if(PEOPLE[who].role!=='rnd') forbid('Only R&D can edit specifications');
+    const r = DB.requests.find(x=>x.id===id);
+    Object.entries(changes).forEach(([k,v])=>{ r.specLog.push({t:nowStamp(), who, k, from:r.spec[k], to:v}); r.spec[k]=v; });
+    audit(who,'Edited '+Object.keys(changes).length+' spec field(s)', id); return r;
+  }),
+  submitSpec: (id, who)=>apiCall('POST','/api/requests/'+id+'/submit', ()=>{
+    const r = DB.requests.find(x=>x.id===id); r.status='SUBMITTED'; r.hist.push({t:nowStamp(), who, a:'Submitted spec sheet', n:'Sent to '+(r.lead?PEOPLE[r.lead].name:'team lead')}); audit(who,'Submitted spec', id); return r;
+  }),
+  decide: (id, ok, note, who)=>apiCall('POST','/api/requests/'+id+(ok?'/approve':'/return'), ()=>{
+    if(PEOPLE[who].role!=='lead') forbid('Only team leads can approve');
+    const r = DB.requests.find(x=>x.id===id); r.status = ok?'APPROVED':'RETURNED';
+    r.hist.push({t:nowStamp(), who, a: ok?'Approved spec':'Returned spec to R&D', n:note||(ok?'Locked for costing':'')}); audit(who, ok?'Approved spec':'Returned spec', id); return r;
+  }),
+  startCosting: (id, who)=>apiCall('POST','/api/costing/'+id+'/start', ()=>{
+    const r = DB.requests.find(x=>x.id===id); if(r.status==='APPROVED'){ r.status='COSTING'; r.hist.push({t:nowStamp(), who, a:'Started costing', n:'Source: '+(APP.mode==='aicm'?'AICM':'Manual')}); audit(who,'Started costing', id);} return r;
+  }, {ms:220}),
+  chassis: (code)=>apiCall('GET','/api/chassis/'+code, ()=>code.startsWith('I')?IDU_CHASSIS[code]:ODU_CHASSIS[code], {ms:260}),
+  commodities: (mode)=>apiCall('GET','/api/commodities?source='+mode, ()=>({mode, manual:DB.manual, lastSync:DB.lastSync})),
+  syncAICM: (who)=>apiCall('POST','/api/integrations/aicm/sync', ()=>{ DB.lastSync = nowStamp(); audit(who,'Synced commodity rates from AICM','Commodity master'); return {synced:COMMODITIES.length}; }, {ms:1400}),
+  saveManual: (vals, who)=>apiCall('PUT','/api/commodities/manual', ()=>{ Object.assign(DB.manual, vals); audit(who,'Updated manual commodity rates','Commodity master'); return DB.manual; }),
+  uploadManual: (file, who)=>apiCall('POST','/api/commodities/manual/upload', ()=>{
+    const v = {CU:15000, AL:3300, FX:95.5, ST:47500, PL:1560, CP:73, RF:530};
+    Object.assign(DB.manual, v); DB.manualFile = file; audit(who,'Uploaded rates sheet '+file,'Commodity master'); return v;
+  }, {ms:1100}),
+  saveVersion: (reqId, payload, who)=>apiCall('POST','/api/costing/'+reqId+'/versions', ()=>{
+    const r = DB.requests.find(x=>x.id===reqId); const prev = DB.versions.filter(v=>v.model===r.model);
+    const v = {id:'VER-'+(1100+DB.versions.length), model:r.model, req:reqId, v:prev.length+1, quarter:'Q4 2026', basis:payload.basis, on:'2026-11-11', by:who, source:payload.source, status:'DRAFT', note:payload.note||'', snap:payload.snap, excl:payload.excl, total:payload.total, material:payload.material, sentTo:'sourcing@'+MODELS.find(m=>m.id===r.model).brand.toLowerCase()+'.example'};
+    DB.versions.push(v); r.status='COSTED'; r.hist.push({t:nowStamp(), who, a:'Saved costing v'+v.v, n:'₹'+Math.round(v.total).toLocaleString('en-IN')+' per set, '+payload.source}); audit(who,'Saved costing v'+v.v, reqId); return v;
+  }),
+  sapBom: (code)=>apiCall('GET','/api/sap/bom/'+code+'?plant=1100&usage=1', ()=>MODELS.find(m=>m.code===code), {ms:500}),
+  sapLpp: (code)=>apiCall('GET','/api/sap/lpp?material='+code, ()=>true, {ms:400}),
+  saveScenario: (sc, who)=>apiCall('POST','/api/simulations', ()=>{ sc.id='SIM-'+(200+DB.scenarios.length); sc.by=who; sc.on=nowStamp(); DB.scenarios.unshift(sc); audit(who,'Saved simulation '+sc.name, sc.id); return sc; }),
+  sendMail: (verId, to, who)=>apiCall('POST','/api/mail/send', ()=>{
+    const v = DB.versions.find(x=>x.id===verId); v.status='SENT'; v.sentTo=to;
+    const r = DB.requests.find(x=>x.id===v.req); if(r){ r.status='SENT'; r.hist.push({t:nowStamp(), who, a:'Sent customer sheet', n:'v'+v.v+' to '+to}); }
+    DB.mails.unshift({t:nowStamp(), to, ver:verId}); audit(who,'Emailed customer sheet v'+v.v+' to '+to, v.req); return v;
+  }, {ms:900}),
+  audit: ()=>apiCall('GET','/api/audit?limit=50', ()=>DB.audit, {ms:200})
+};
+
+/* ===== Small SVG chart kit (no dependencies). Every mark carries data-tip for the hover layer ===== */
+const fmt = {
+  inr:(v,d=0)=>'₹'+Number(v).toLocaleString('en-IN',{maximumFractionDigits:d, minimumFractionDigits:d}),
+  n:(v,d=0)=>Number(v).toLocaleString('en-IN',{maximumFractionDigits:d, minimumFractionDigits:d}),
+  pct:(v,d=1)=>(v>0?'+':'')+(v*100).toFixed(d)+'%',
+  k:(v)=>Math.abs(v)>=1e7?'₹'+(v/1e7).toFixed(2)+' Cr':Math.abs(v)>=1e5?'₹'+(v/1e5).toFixed(2)+' L':fmt.inr(v)
+};
+function esc(s){ return String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+
+function spark(vals, w=70, h=22, color='#6EDDB4'){
+  const mn=Math.min(...vals), mx=Math.max(...vals), sx=w/(vals.length-1), sy=v=>h-2-((v-mn)/((mx-mn)||1))*(h-4);
+  const d=vals.map((v,i)=>(i?'L':'M')+(i*sx).toFixed(1)+' '+sy(v).toFixed(1)).join(' ');
+  return `<svg width="${w}" height="${h}" viewBox="0 0 ${w} ${h}" aria-hidden="true"><path d="${d}" fill="none" stroke="${color}" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"/></svg>`;
+}
+
+/* Waterfall: steps [{label, value, kind:'add'|'sub'|'total', color}] */
+function waterfall(steps, opts={}){
+  const W=opts.w||640, H=opts.h||250, padL=8, padB=40, padT=22;
+  let run=0; const bars=steps.map(s=>{ if(s.kind==='total'){ const b={...s, y0:0, y1:s.value}; run=s.value; return b; } const y0=run; run+=s.value; return {...s, y0, y1:run}; });
+  const mx=Math.max(...bars.map(b=>Math.max(b.y0,b.y1)))*1.08;
+  const bw=(W-padL*2)/bars.length, gap=Math.min(14, bw*.28), sy=v=>padT+(H-padB-padT)*(1-v/mx);
+  let g='';
+  for(let i=0;i<4;i++){ const v=mx*i/4, y=sy(v); g+=`<line x1="0" x2="${W}" y1="${y}" y2="${y}"/>`; }
+  let marks='', labels='';
+  bars.forEach((b,i)=>{
+    const x=padL+i*bw+gap/2, w=bw-gap, top=sy(Math.max(b.y0,b.y1)), bot=sy(Math.min(b.y0,b.y1)), hgt=Math.max(2,bot-top);
+    const col=b.color || (b.kind==='total'?'#0E2E25':b.value<0?'#1A8259':'#B5622D');
+    marks+=`<rect x="${x}" y="${top}" width="${w}" height="${hgt}" rx="4" fill="${col}" data-tip="<b>${esc(b.label)}</b><br>${b.kind==='total'?'':(b.value<0?'− ':'+ ')}${fmt.inr(Math.abs(b.value))}${b.kind==='total'?'':'<br>Running: '+fmt.inr(b.y1)}" style="transform-origin:${x+w/2}px ${H-padB}px;animation:grow .5s ${i*.05}s both ease-out"/>`;
+    if(i<bars.length-1 && b.kind!=='total'){ const nx=padL+(i+1)*bw+gap/2; marks+=`<line x1="${x+w}" x2="${nx}" y1="${sy(b.y1)}" y2="${sy(b.y1)}" stroke="#9AA8A1" stroke-dasharray="2 3"/>`; }
+    labels+=`<text class="val" x="${x+w/2}" y="${top-6}" text-anchor="middle">${fmt.k(Math.abs(b.kind==='total'?b.y1:b.value))}</text>`;
+    const words=b.label.split(' '); const l1=words.slice(0,2).join(' '), l2=words.slice(2).join(' ');
+    labels+=`<text class="lbl" x="${x+w/2}" y="${H-padB+16}" text-anchor="middle">${esc(l1)}</text>`+(l2?`<text class="lbl" x="${x+w/2}" y="${H-padB+30}" text-anchor="middle">${esc(l2)}</text>`:'');
+  });
+  return `<div class="chart"><svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Cost build-up waterfall"><style>@keyframes grow{from{transform:scaleY(0)}}@media (prefers-reduced-motion:reduce){rect{animation:none!important}}</style><g class="grid">${g}</g>${marks}${labels}</svg></div>`;
+}
+
+/* Donut: parts [{label, value, color}] */
+function donut(parts, opts={}){
+  const S=opts.size||180, r=S/2-10, ir=r-22, cx=S/2, cy=S/2, tot=parts.reduce((a,b)=>a+b.value,0);
+  let a0=-Math.PI/2, out='';
+  parts.forEach(p=>{
+    const a1=a0+(p.value/tot)*Math.PI*2, large=(a1-a0)>Math.PI?1:0;
+    const p1=[cx+r*Math.cos(a0), cy+r*Math.sin(a0)], p2=[cx+r*Math.cos(a1), cy+r*Math.sin(a1)], p3=[cx+ir*Math.cos(a1), cy+ir*Math.sin(a1)], p4=[cx+ir*Math.cos(a0), cy+ir*Math.sin(a0)];
+    out+=`<path d="M${p1} A${r} ${r} 0 ${large} 1 ${p2} L${p3} A${ir} ${ir} 0 ${large} 0 ${p4}Z" fill="${p.color}" stroke="var(--paper)" stroke-width="2" data-tip="<b>${esc(p.label)}</b><br>${opts.unit==='kg'?fmt.n(p.value,2)+' kg':fmt.inr(p.value)} (${(p.value/tot*100).toFixed(1)}%)"/>`;
+    a0=a1;
+  });
+  const center = opts.center ? `<text x="${cx}" y="${cy-2}" text-anchor="middle" style="font-family:var(--display);font-size:20px;font-weight:600;fill:var(--ink)">${opts.center}</text><text x="${cx}" y="${cy+16}" text-anchor="middle">${opts.centerSub||''}</text>` : '';
+  return `<div class="chart" style="max-width:${S}px"><svg viewBox="0 0 ${S} ${S}" role="img" aria-label="${esc(opts.label||'Breakdown')}">${out}${center}</svg></div>`;
+}
+
+/* Line: one or more series over labels; single y-axis */
+function lineChart(series, labels, opts={}){
+  const W=opts.w||640, H=opts.h||220, padL=48, padR=14, padT=12, padB=26;
+  const all=series.flatMap(s=>s.values).filter(v=>v!=null), mn=Math.min(...all)*.97, mx=Math.max(...all)*1.02;
+  const sx=i=>padL+i*((W-padL-padR)/(labels.length-1)), sy=v=>padT+(H-padT-padB)*(1-(v-mn)/(mx-mn));
+  let g='';
+  for(let i=0;i<=4;i++){ const v=mn+(mx-mn)*i/4, y=sy(v); g+=`<line x1="${padL}" x2="${W-padR}" y1="${y}" y2="${y}"/><text x="${padL-8}" y="${y+4}" text-anchor="end">${fmt.n(v, v<200?1:0)}</text>`; }
+  const xl=labels.map((l,i)=>`<text x="${sx(i)}" y="${H-6}" text-anchor="middle">${esc(l)}</text>`).join('');
+  let paths='', dots='';
+  series.forEach(s=>{
+    const d=s.values.map((v,i)=>v==null?'':((i&&s.values[i-1]!=null?'L':'M')+sx(i).toFixed(1)+' '+sy(v).toFixed(1))).join(' ');
+    paths+=`<path d="${d}" fill="none" stroke="${s.color}" stroke-width="2" stroke-linejoin="round" ${s.dash?'stroke-dasharray="4 4"':''}/>`;
+    s.values.forEach((v,i)=>{ if(v==null) return; dots+=`<circle cx="${sx(i)}" cy="${sy(v)}" r="${(opts.mark&&opts.mark.includes(i))?5:3.2}" fill="${s.color}" stroke="var(--paper)" stroke-width="2" data-tip="<b>${esc(labels[i])}</b><br>${esc(s.name)}: ${fmt.n(v,2)}"/><circle cx="${sx(i)}" cy="${sy(v)}" r="12" fill="transparent" data-tip="<b>${esc(labels[i])}</b><br>${esc(s.name)}: ${fmt.n(v,2)}"/>`; });
+  });
+  const band = opts.band!=null ? `<rect x="${sx(opts.band[0])-8}" y="${padT}" width="${sx(opts.band[1])-sx(opts.band[0])+16}" height="${H-padT-padB}" fill="#36C79A" opacity=".10" rx="6"/>` : '';
+  return `<div class="chart"><svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(opts.label||'Trend')}"><g class="grid">${g}</g>${band}${xl}${paths}${dots}</svg></div>`;
+}
+
+/* Diverging horizontal bars: items [{label, value, color}] value in ₹ (+ cost up) */
+function divBars(items, opts={}){
+  const W=opts.w||560, rowH=30, H=items.length*rowH+10, mid=W*0.55, lblW=150;
+  const mx=Math.max(1,...items.map(i=>Math.abs(i.value)));
+  const sc=v=>(Math.abs(v)/mx)*((W-mid)-60);
+  let out=`<line x1="${mid}" x2="${mid}" y1="0" y2="${H}" stroke="#9AA8A1"/>`;
+  items.forEach((it,i)=>{
+    const y=i*rowH+6, w=Math.max(it.value?2:0, sc(it.value)), x=it.value>=0?mid:mid-w;
+    out+=`<text class="lbl" x="${mid-sc(Math.min(0,it.value))-8 - (it.value<0?0:0)}" y="${y+15}" text-anchor="end">${esc(it.label)}</text>`;
+    out+=`<rect x="${x}" y="${y+3}" width="${w}" height="16" rx="4" fill="${it.color}" data-tip="<b>${esc(it.label)}</b><br>${it.value>=0?'+':'−'}${fmt.inr(Math.abs(it.value))} per set"/>`;
+    out+=`<text class="val" x="${it.value>=0?mid+w+6:mid+6}" y="${y+15}">${it.value>=0?'+':'−'}${fmt.inr(Math.abs(it.value))}</text>`;
+  });
+  return `<div class="chart"><svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Impact by commodity">${out}</svg></div>`;
+}
+
+/* Hover layer for every [data-tip] mark */
+(function(){
+  let tip;
+  document.addEventListener('mousemove', e=>{
+    const t = e.target.closest && e.target.closest('[data-tip]');
+    if(!t){ if(tip) tip.style.display='none'; return; }
+    if(!tip){ tip=document.createElement('div'); tip.className='tip'; document.body.appendChild(tip); }
+    tip.innerHTML = t.getAttribute('data-tip'); tip.style.display='block';
+    const x = Math.min(window.innerWidth-tip.offsetWidth-12, e.clientX+14), y = Math.max(8, e.clientY-tip.offsetHeight-10);
+    tip.style.left=x+'px'; tip.style.top=y+'px';
+  });
+})();
+
+/* ===== App core, shell, home, requests, spec sheets ===== */
+const APP = {user:null, mode:'aicm', wb:{}, sim:null, hist:{sel:[], q:''}, bom:null, lib:{sel:null,q:''}, spec:{showInternal:true, draft:{}}, renderToken:0};
+const $ = (s,el=document)=>el.querySelector(s);
+const $$ = (s,el=document)=>[...el.querySelectorAll(s)];
+const MODULES = [
+  {id:'home', label:'Command centre'}, {id:'requests', label:'Requests'}, {id:'spec', label:'Spec sheets'}, {id:'costing', label:'Costing'},
+  {id:'commodities', label:'Commodities'}, {id:'simulation', label:'Simulation'}, {id:'bom', label:'SAP BOM'}, {id:'history', label:'Quote history'},
+  {id:'library', label:'Library'}, {id:'admin', label:'Admin'}
+];
+const model = id=>MODELS.find(m=>m.id===id);
+const reqById = id=>DB.requests.find(r=>r.id===id);
+const person = id=>PEOPLE[id]||{name:'—', tone:'#999'};
+const can = mod=>ROLES[APP.user.role].modules.includes(mod);
+const isRole = (...r)=>r.includes(APP.user.role);
+function av(id, size=28){ const p=person(id); const ini=p.name.split(' ').map(x=>x[0]).join('').slice(0,2); return `<span class="av" style="width:${size}px;height:${size}px;background:${p.tone};font-size:${size<30?11:13}px" title="${esc(p.name)}">${ini}</span>`; }
+function stPill(s){ return `<span class="st st-${s}"><i></i>${STATUS[s].label}</span>`; }
+function brandDot(b){ return `<span class="mat"><i style="background:${BRAND_TONE[b]}"></i>${esc(b)}</span>`; }
+function toast(msg, err){ const t=document.createElement('div'); t.className='toast'+(err?' err':''); t.innerHTML=`<i></i><span>${msg}</span>`; $('#toasts').appendChild(t); setTimeout(()=>t.remove(), 3600); }
+function snapNow(){ return snapshotFrom(APP.mode, DB.manual); }
+function basisLabel(){ return APP.mode==='aicm' ? 'AICM, '+QUARTER_BASIS.label : 'Manual rates'+(DB.manualFile?' from '+DB.manualFile:''); }
+function loader(txt='Loading'){ return `<div class="empty"><span class="btn ghost" style="pointer-events:none"><span class="sp"></span>${txt}…</span></div>`; }
+
+/* ---------- routing ---------- */
+function route(){ const h=(location.hash||'#/home').slice(2).split('/'); return {mod:h[0]||'home', id:h[1]?decodeURIComponent(h[1]):null, sub:h[2]||null}; }
+function go(h){ if(location.hash==='#/'+h) render(); else location.hash='#/'+h; }
+window.addEventListener('hashchange', ()=>render());
+
+function render(){
+  if(!APP.user){ renderLogin(); return; }
+  if(!$('#deck')) renderShell();
+  const r = route();
+  $$('.tab').forEach(t=>t.classList.toggle('on', t.dataset.mod===(r.mod==='customer'?'history':r.mod)));
+  const token = ++APP.renderToken;
+  const el = $('#view'); window.scrollTo(0,0);
+  const mod = r.mod==='customer' ? 'history' : r.mod;
+  if(!can(mod) && mod!=='home'){ el.innerHTML = lockedView(mod); return; }
+  const V = {home:viewHome, requests:r.id?viewRequest:viewRequests, spec:r.id?viewSpecSheet:viewSpecList, costing:r.id?viewWorkbench:viewCostingList,
+    commodities:viewCommodities, simulation:viewSimulation, bom:viewBom, history:viewHistory, customer:viewCustomer, library:viewLibrary, admin:viewAdmin}[r.mod] || viewHome;
+  Promise.resolve(V(el, r, token)).catch(e=>{ if(token===APP.renderToken) el.innerHTML = `<div class="lock-note"><div class="ic">!</div><div><b>${esc(e.message)}</b><div class="small">The mock API rejected this request.</div></div></div>`; });
+}
+function stale(t){ return t!==APP.renderToken; }
+function lockedView(mod){
+  const m = MODULES.find(x=>x.id===mod);
+  return `<div class="page-head"><div class="t"><h1>${m?m.label:'Restricted'}</h1></div></div>
+  <div class="lock-note"><div class="ic">🔒</div><div><b>${ROLES[APP.user.role].label} accounts can't open ${m?m.label.toLowerCase():'this page'}.</b>
+  <div class="small">Costing data is confidential. Access is role-based: ${esc(ROLES[APP.user.role].can.toLowerCase())}. Switch user to see this module.</div></div></div>`;
+}
+
+/* ---------- login ---------- */
+function renderLogin(){
+  document.body.innerHTML = `
+  <div class="login">
+    <div class="login-art"><div class="fins"></div>
+      <div class="brand"><span class="mark"></span><div><div class="brand-name">ChassisIQ</div><div class="brand-for">Cost & specification studio, prepared for Amber Enterprises</div></div></div>
+      <div class="login-hero"><h1>Every quote, traceable to the gram.</h1>
+        <p>From a brand's spec request to a priced, versioned customer sheet. Chassis base cost plus exclusive parts, re-priced live as copper, aluminium and the rupee move.</p></div>
+      <div class="login-stack"><div><b>${MODELS.length}</b>models in the demo</div><div><b>${DB.versions.length}</b>quote versions since 2025</div><div><b>${fmt.n(COMMODITIES.find(c=>c.code==='CU').cur)}</b>LME copper, USD/MT</div></div>
+    </div>
+    <div class="login-pick">
+      <h2>Sign in as</h2>
+      <p class="sub small" style="margin:0 0 8px">Each person sees only what their role allows. You can switch user at any time from the top bar.</p>
+      ${LOGIN_CARDS.map(id=>{ const p=PEOPLE[id]; return `<button class="role-card" data-act="login" data-id="${id}">${av(id,44)}<span><b>${esc(p.name)}</b> <span class="muted small">${esc(p.title)}</span><div class="can">${esc(ROLES[p.role].can)}</div></span><span class="go">›</span></button>`; }).join('')}
+      <div class="row-x small" style="margin-top:4px"><span class="muted">Also sign in as</span>${Object.keys(PEOPLE).filter(id=>!LOGIN_CARDS.includes(id)).map(id=>`<button class="chip" data-act="login" data-id="${id}" style="cursor:pointer">${esc(PEOPLE[id].name)}, ${esc(ROLES[PEOPLE[id].role].label)}</button>`).join('')}</div>
+      <p class="muted small" style="margin-top:10px">Demo build. Commodity rates mirror AICM on 06 Nov 2026; chassis BOMs, prices and quotes are illustrative until Amber shares real data.</p>
+    </div>
+  </div>
+  <div id="toasts" class="toasts"></div>`;
+}
+
+/* ---------- shell ---------- */
+function renderShell(){
+  const tk = COMMODITIES.map(c=>{ const ch=(c.cur-c.hist[c.hist.length-2])/c.hist[c.hist.length-2]; return `<span class="tk"><span class="nm">${esc(c.index)}</span><span class="px num">${fmt.n(c.cur, c.cur<200?2:0)}</span><span class="nm small">${c.unit}</span><span class="ch ${ch>=0?'up':'dn'}">${ch>=0?'▲':'▼'} ${Math.abs(ch*100).toFixed(1)}%</span>${spark(c.hist,56,18, ch>=0?'#F08A78':'#6EDDB4')}</span>`; }).join('');
+  const u = APP.user;
+  document.body.innerHTML = `
+  <div class="demo-band">Demo environment. Rates mirror AICM (06 Nov 2026); BOMs, prices and quotes are illustrative.</div>
+  <header class="deck" id="deck">
+    <div class="deck-top">
+      <div class="brand"><span class="mark"></span><div><div class="brand-name">ChassisIQ</div><div class="brand-for">for Amber Enterprises</div></div></div>
+      <button class="deck-search" data-act="palette"><span>⌕</span><span>Search requests, models, quotes</span><kbd>Ctrl K</kbd></button>
+      <div style="display:flex;align-items:center;gap:8px">
+        <span class="source-label">Commodity rates</span>
+        <div class="source-switch" role="group" aria-label="Commodity rate source">
+          <button class="aicm ${APP.mode==='aicm'?'on':''}" data-act="mode" data-v="aicm"><span class="dot"></span>AICM linked</button>
+          <button class="${APP.mode==='manual'?'on':''}" data-act="mode" data-v="manual"><span class="dot"></span>Manual</button>
+        </div>
+      </div>
+      <button class="who" data-act="switch-user">${av(u.id,30)}<span><span class="n">${esc(u.name)}</span><span class="r">${esc(ROLES[u.role].label)}</span></span><span style="color:#9DB8AC;padding-right:6px">⇄</span></button>
+    </div>
+    <div class="ticker"><div class="ticker-track">${tk}${tk}</div></div>
+    <nav class="tabs">${MODULES.map(m=>{ const ok=can(m.id)||m.id==='home'; const cnt = m.id==='requests'? DB.requests.filter(r=>queueFor(r)).length : 0; return `<button class="tab ${ok?'':'locked'}" data-mod="${m.id}" data-act="nav">${ok?'':'🔒 '}${m.label}${cnt?`<span class="cnt">${cnt}</span>`:''}</button>`; }).join('')}</nav>
+  </header>
+  <main class="view" id="view"></main>
+  <div id="toasts" class="toasts"></div>
+  <button class="api-pill" id="apiPill" data-act="api"><i></i><span id="apiTxt">Mock API ready</span></button>
+  <div class="api-panel hide" id="apiPanel"></div>`;
+  updateApi();
+}
+function queueFor(r){ const role=APP.user.role, me=APP.user.id;
+  if(role==='lead') return r.status==='NEW' || (r.status==='SUBMITTED' && r.lead===me);
+  if(role==='rnd') return r.assignee===me && ['RND','ALLOCATED','RETURNED'].includes(r.status);
+  if(role==='costing') return ['APPROVED','COSTING','COSTED'].includes(r.status);
+  if(role==='kam') return r.status==='SENT' || r.status==='NEW';
+  return false; }
+
+function updateApi(){
+  const pill=$('#apiPill'); if(!pill) return;
+  pill.classList.toggle('busy', apiBusy>0);
+  const last=API_LOG[0];
+  $('#apiTxt').textContent = apiBusy>0 ? 'Calling API…' : last ? `${last.method} ${last.path.split('?')[0]}  ${last.status}  ${last.ms}ms` : 'Mock API ready';
+  const p=$('#apiPanel'); if(p && !p.classList.contains('hide')) p.innerHTML = apiPanelHtml();
+}
+apiListeners.push(updateApi);
+function apiPanelHtml(){ return `<div class="hd"><b style="color:#fff">API requests</b><span style="color:#8FB0A3">${API_LOG.length} calls this session, mock backend</span><span class="spacer"></span><button class="btn sm" data-act="api" style="background:transparent;color:#CFE3DA;border-color:rgba(255,255,255,.2)">Close</button></div>`+
+  (API_LOG.length?API_LOG.map(l=>`<div class="api-row"><span class="m ${l.method}">${l.method}</span><span class="p" title="${esc(l.path)}">${esc(l.path)}</span><span class="s" style="${l.status>=400?'color:#F08A78':''}">${l.status}</span><span class="ms">${l.ms} ms</span></div>`).join(''):'<div class="api-row"><span></span><span class="p">No calls yet</span></div>'); }
+
+/* ---------- actions ---------- */
+const ACT = {
+  login: async el=>{ const r=await api.login(el.dataset.id); APP.user=r.user; document.body.innerHTML=''; render(); toast('Signed in as '+r.user.name+', '+ROLES[r.user.role].label); },
+  'switch-user': ()=>{ closeOverlay(); APP.user=null; location.hash='#/home'; render(); },
+  nav: el=>go(el.dataset.mod),
+  mode: el=>{ if(APP.mode===el.dataset.v) return; APP.mode=el.dataset.v; $$('.source-switch button').forEach(b=>b.classList.toggle('on', b.dataset.v===APP.mode)); toast(APP.mode==='aicm'?'Commodity rates now pulled from AICM (Q3 average)':'Manual mode: costing uses rates entered by the costing team'); render(); },
+  api: ()=>{ const p=$('#apiPanel'); p.classList.toggle('hide'); if(!p.classList.contains('hide')) p.innerHTML=apiPanelHtml(); },
+  go: el=>go(el.dataset.to),
+  palette: ()=>openPalette(),
+  reset: ()=>{ resetDB(); toast('Demo data restored to the starting point'); APP.user && renderShell(); render(); }
+};
+document.addEventListener('click', e=>{ const el=e.target.closest('[data-act]'); if(!el) return; const f=ACT[el.dataset.act]; if(f){ e.preventDefault(); f(el,e); } });
+document.addEventListener('keydown', e=>{ if((e.ctrlKey||e.metaKey) && e.key.toLowerCase()==='k' && APP.user){ e.preventDefault(); openPalette(); } if(e.key==='Escape'){ closeOverlay(); } });
+function closeOverlay(){ $$('.scrim,.modal-wrap').forEach(x=>x.remove()); }
+function drawer(title, body, foot=''){ closeOverlay(); const w=document.createElement('div'); w.className='scrim'; w.innerHTML=`<aside class="drawer" role="dialog" aria-label="${esc(title)}"><div class="drawer-h"><h3>${title}</h3><button class="btn sm ghost" data-act="close">Close</button></div><div class="drawer-b">${body}</div>${foot?`<div class="drawer-b" style="border-top:1px solid var(--line)">${foot}</div>`:''}</aside>`; w.addEventListener('click',e=>{ if(e.target===w) closeOverlay(); }); document.body.appendChild(w); return w; }
+ACT.close = ()=>closeOverlay();
+
+function openPalette(){
+  closeOverlay();
+  const items = [
+    ...MODULES.filter(m=>can(m.id)||m.id==='home').map(m=>({t:m.label, k:'Go to', to:m.id})),
+    ...DB.requests.map(r=>({t:r.id+'  '+model(r.model).name, k:STATUS[r.status].label, to:'requests/'+r.id})),
+    ...(can('history')?DB.versions.map(v=>({t:model(v.model).brand+' '+model(v.model).code+' v'+v.v+', '+v.quarter, k:'Quote '+fmt.inr(v.total), to:'history/'+v.id})):[]),
+    {t:'Switch commodity rates to '+(APP.mode==='aicm'?'Manual':'AICM'), k:'Action', act:'mode'},
+    {t:'Reset demo data', k:'Action', act:'reset'}
+  ];
+  const w=document.createElement('div'); w.className='modal-wrap';
+  w.innerHTML=`<div class="palette"><input placeholder="Type a request ID, brand, model or page" aria-label="Search"><div class="res"></div></div>`;
+  document.body.appendChild(w);
+  const inp=$('input',w), res=$('.res',w); let sel=0, list=items;
+  const draw=()=>{ res.innerHTML=list.slice(0,12).map((it,i)=>`<div class="it ${i===sel?'on':''}" data-i="${i}">${esc(it.t)}<span class="k">${esc(it.k)}</span></div>`).join('')||'<div class="empty">No matches</div>'; };
+  const pick=i=>{ const it=list[i]; if(!it) return; closeOverlay(); if(it.act==='mode'){ ACT.mode({dataset:{v:APP.mode==='aicm'?'manual':'aicm'}}); } else if(it.act==='reset'){ ACT.reset(); } else go(it.to); };
+  inp.addEventListener('input',()=>{ const q=inp.value.toLowerCase(); list=items.filter(i=>(i.t+' '+i.k).toLowerCase().includes(q)); sel=0; draw(); });
+  inp.addEventListener('keydown',e=>{ if(e.key==='ArrowDown'){sel=Math.min(sel+1,list.length-1);draw();} if(e.key==='ArrowUp'){sel=Math.max(sel-1,0);draw();} if(e.key==='Enter') pick(sel); });
+  res.addEventListener('click',e=>{ const it=e.target.closest('.it'); if(it) pick(+it.dataset.i); });
+  w.addEventListener('click',e=>{ if(e.target===w) closeOverlay(); });
+  draw(); inp.focus();
+}
+
+/* ---------- home ---------- */
+async function viewHome(el, r, token){
+  el.innerHTML = loader('Loading your workspace');
+  const reqs = await api.requests(); if(stale(token)) return;
+  const u=APP.user, role=u.role, snap=snapNow();
+  const counts = s=>reqs.filter(x=>s.includes(x.status)).length;
+  const stages = [['Logged',['NEW']],['With R&D',['ALLOCATED','RND','RETURNED']],['Awaiting approval',['SUBMITTED']],['Approved',['APPROVED']],['Costing',['COSTING']],['Ready to send',['COSTED']],['Sent',['SENT']]];
+  const mine = reqs.filter(queueFor);
+  const greet = {kam:'Requests you logged and what has gone back to brands.', lead:'Allocate new requests and clear specs waiting for your approval.', rnd:'Spec sheets assigned to you.', costing:'Approved specs ready for costing, and commodity moves that change your quotes.', admin:'Users, access and the audit trail.'}[role];
+  const cu=COMMODITIES.find(c=>c.code==='CU');
+  const showCost = isRole('costing');
+  let costBlock = '';
+  if(showCost){
+    const rows = MODELS.map(m=>{ const c=compute(m,snap); return {m, total:c.total, cuShare:c.byMat.CU/c.material}; });
+    costBlock = `<div class="panel"><div class="panel-h"><h3>Copper exposure by model</h3><span class="chip">${APP.mode==='aicm'?'AICM, Q3 avg':'Manual rates'}</span></div><div class="panel-b">
+      <table class="tbl"><thead><tr><th>Model</th><th class="r">Cost per set</th><th>Copper share of material</th></tr></thead><tbody>
+      ${rows.sort((a,b)=>b.cuShare-a.cuShare).map(x=>`<tr class="click" data-act="go" data-to="library/${x.m.id}"><td>${brandDot(x.m.brand)} <span class="muted small">${x.m.tr} TR, ${x.m.star}★</span></td><td class="r num">${fmt.inr(x.total)}</td><td style="width:42%"><div class="row-x"><div class="bar-track" style="flex:1"><i style="width:${(x.cuShare*100*2.2).toFixed(0)}%;background:var(--cu)"></i></div><span class="num small" style="width:44px;text-align:right">${(x.cuShare*100).toFixed(1)}%</span></div></td></tr>`).join('')}
+      </tbody></table></div></div>`;
+  }
+  el.innerHTML = `
+  <div class="page-head"><div class="t"><div class="crumbs">Wednesday, 11 November 2026</div><h1>Good morning, ${esc(u.name.split(' ')[0])}</h1><p>${greet}</p></div>
+    ${isRole('kam','costing','lead')?`<button class="btn primary" data-act="new-req">Log a customer request</button>`:''}</div>
+  <div class="panel" style="padding:4px;margin-bottom:16px"><div class="pipe">${stages.map(([l,s])=>{ const n=counts(s); return `<div class="stg ${s.some(x=>mine.find(m=>m.status===x))?'hot':''}"><b class="num">${n}</b><span>${l}</span></div>`; }).join('')}</div></div>
+  <div class="grid g-main">
+    <div class="grid" style="align-content:start">
+      <div class="panel"><div class="panel-h"><h3>Needs your action</h3><span class="chip ${mine.length?'warn':'mint'}">${mine.length} open</span></div><div class="panel-b">
+      ${mine.length?`<table class="tbl"><tbody>${mine.map(x=>{ const m=model(x.model); return `<tr class="click" data-act="go" data-to="requests/${x.id}"><td style="width:120px"><b class="num">${x.id}</b></td><td>${esc(m.name)}<div class="small muted">${esc(x.via)}</div></td><td>${stPill(x.status)}</td><td class="r small muted">Due ${x.due}</td></tr>`; }).join('')}</tbody></table>`:`<div class="empty">Nothing waiting on you. New requests appear here as soon as they are logged.</div>`}
+      </div></div>
+      ${costBlock}
+    </div>
+    <div class="grid" style="align-content:start">
+      <div class="panel"><div class="panel-h"><h3>LME copper, quarterly average</h3><span class="chip mint"><span class="d"></span>AICM</span></div><div class="panel-b">
+        ${lineChart([{name:'Copper USD/MT', values:[cu.q1,cu.q2,cu.q3,cu.cur], color:COLORS.CU}], ['Q1 avg','Q2 avg','Q3 avg','Spot 06 Nov'], {h:190, label:'LME copper quarterly average', mark:[2]})}
+        <p class="small sub" style="margin:8px 0 0">Next-quarter quotes use the last quarter's average: <b class="num">${fmt.n(cu.q3,2)}</b> USD/MT, ${fmt.pct((cu.q3-cu.q2)/cu.q2)} on Q2.</p>
+      </div></div>
+      <div class="panel"><div class="panel-h"><h3>Recent activity</h3></div><div class="panel-b"><ul class="tl">${DB.audit.slice(0,6).map(a=>`<li><span class="b"></span><div>${av(a.who,20)} <b>${esc(person(a.who).name)}</b> ${esc(a.a.charAt(0).toLowerCase()+a.a.slice(1))}</div><div class="w">${esc(a.obj)}, ${a.t}</div></li>`).join('')}</ul></div></div>
+    </div>
+  </div>`;
+}
+
+/* ---------- requests ---------- */
+async function viewRequests(el, r, token){
+  el.innerHTML = loader('Fetching requests');
+  const reqs = await api.requests(); if(stale(token)) return;
+  const f = APP.reqFilter||'all';
+  const list = reqs.filter(x=> f==='all' || (f==='mine'&&queueFor(x)) || (f==='open'&&x.status!=='SENT') || (f==='sent'&&x.status==='SENT'));
+  el.innerHTML = `
+  <div class="page-head"><div class="t"><h1>Customer requests</h1><p>Every spec request from a brand, from the moment it is logged to the priced sheet that goes back. Team leads allocate, R&D fills the spec, leads approve, costing prices it.</p></div>
+    ${isRole('kam','costing','lead')?`<button class="btn primary" data-act="new-req">Log a customer request</button>`:''}</div>
+  <div class="row-x" style="margin-bottom:12px"><div class="seg">${[['all','All'],['mine','Needs my action'],['open','Open'],['sent','Sent']].map(([k,l])=>`<button class="${f===k?'on':''}" data-act="req-filter" data-v="${k}">${l}</button>`).join('')}</div><span class="spacer"></span><span class="small muted">${list.length} of ${reqs.length}</span></div>
+  <div class="panel"><div class="panel-b" style="padding-top:6px"><table class="tbl"><thead><tr><th>Request</th><th>Model</th><th>Chassis</th><th>Received</th><th>Team lead</th><th>R&D</th><th>Status</th><th class="r">Due</th></tr></thead><tbody>
+  ${list.map(x=>{ const m=model(x.model); return `<tr class="click" data-act="go" data-to="requests/${x.id}"><td><b class="num">${x.id}</b><div class="small muted">${x.priority} priority</div></td><td>${brandDot(m.brand)}<div class="small sub">${esc(m.name.replace(m.brand+' ',''))}</div></td><td><span class="chip">${m.idu}</span> <span class="chip">${m.odu}</span></td><td class="small">${x.received}</td><td>${x.lead?av(x.lead,24):'<span class="muted small">Unassigned</span>'}</td><td>${x.assignee?av(x.assignee,24):'<span class="muted small">—</span>'}</td><td>${stPill(x.status)}</td><td class="r small">${x.due}</td></tr>`; }).join('')}
+  </tbody></table></div></div>`;
+}
+ACT['req-filter'] = el=>{ APP.reqFilter=el.dataset.v; render(); };
+
+ACT['new-req'] = ()=>{
+  drawer('Log a customer request', `
+    <div class="note">Logged requests go to the team leads (Navdeep, Mahendra) for allocation to an R&D engineer.</div>
+    <div class="field"><label>Brand and model</label><select class="sel" id="nr-model">${MODELS.map(m=>`<option value="${m.id}">${esc(m.name)} (${m.code})</option>`).join('')}</select></div>
+    <div class="grid g2"><div class="field"><label>Received via</label><input class="inp" id="nr-via" value="Email from brand sourcing team"></div>
+    <div class="field"><label>Reply due by</label><input class="inp" type="date" id="nr-due" value="2026-12-02"></div></div>
+    <div class="field"><label>Priority</label><div class="seg" id="nr-pri">${['High','Medium','Low'].map((p,i)=>`<button class="${i===1?'on':''}" data-act="seg-pick">${p}</button>`).join('')}</div></div>
+    <div class="field"><label>What the customer asked for</label><textarea class="inp" id="nr-note" rows="4">Q4 pricing for the 1.5 TR inverter variant. Customer wants the brand fascia and Wi-Fi option costed separately.</textarea></div>
+    <div class="upload" data-act="fake-attach" id="nr-att">Attach the customer's email or spec PDF</div>`,
+    `<div class="row-x"><span class="spacer"></span><button class="btn" data-act="close">Cancel</button><button class="btn primary" data-act="nr-save">Log request</button></div>`);
+};
+ACT['seg-pick'] = el=>{ $$('button',el.parentElement).forEach(b=>b.classList.remove('on')); el.classList.add('on'); };
+ACT['fake-attach'] = el=>{ el.innerHTML='📎 Customer_spec_request.pdf <span class="muted small">(312 KB, attached)</span>'; };
+ACT['nr-save'] = async el=>{
+  el.disabled=true; el.innerHTML='<span class="sp"></span>Logging';
+  const data={model:$('#nr-model').value, via:$('#nr-via').value, due:$('#nr-due').value, priority:$('#nr-pri .on').textContent, note:$('#nr-note').value};
+  const r = await api.createRequest(data, APP.user.id); closeOverlay(); toast('Logged '+r.id+'. Team leads have been notified.'); renderShell(); go('requests/'+r.id);
+};
+
+function flowHtml(st){ const step=STATUS[st].step; return `<div class="flow">${FLOW.map((f,i)=>`<div class="s ${i<step||st==='SENT'?'done':i===step?'now':''}"><b>${f}</b>${i===step&&st!=='SENT'?'Current step':i<step||st==='SENT'?'Done':''}</div>`).join('')}</div>`; }
+
+async function viewRequest(el, r, token){
+  el.innerHTML = loader('Opening request');
+  await api.requests(); if(stale(token)) return;
+  const x = reqById(r.id); if(!x){ el.innerHTML='<div class="empty">Request not found.</div>'; return; }
+  const m = model(x.model), role=APP.user.role, me=APP.user.id;
+  const engineers = ['ritika','arjun','sana'];
+  const load = id=>DB.requests.filter(q=>q.assignee===id && ['RND','ALLOCATED','RETURNED','SUBMITTED'].includes(q.status)).length;
+  let action = '';
+  if(x.status==='NEW'){
+    action = role==='lead' ? `<div class="panel"><div class="panel-h"><h3>Allocate to R&D</h3></div><div class="panel-b">
+      <p class="small sub" style="margin-top:0">Pick the engineer who will fill the spec sheet. Current open load is shown so work stays balanced.</p>
+      <div class="grid" style="gap:8px">${engineers.map((id,i)=>`<label class="role-card" style="grid-template-columns:auto 34px 1fr auto;cursor:pointer"><input type="radio" name="eng" value="${id}" ${i===0?'checked':''}>${av(id,34)}<span><b>${esc(person(id).name)}</b><div class="can">${load(id)} open spec${load(id)===1?'':'s'}</div></span><span class="chip">${load(id)<2?'Available':'Busy'}</span></label>`).join('')}</div>
+      <div class="row-x" style="margin-top:12px"><span class="spacer"></span><button class="btn primary" data-act="allocate" data-id="${x.id}">Allocate request</button></div></div></div>`
+      : `<div class="note">Waiting for a team lead to allocate this request. Navdeep and Mahendra have been notified.</div>`;
+  } else if(['RND','ALLOCATED','RETURNED'].includes(x.status)){
+    action = role==='rnd' && x.assignee===me ? `<div class="panel"><div class="panel-b row-x"><div style="flex:1"><b>Your turn: fill the spec sheet</b><div class="small sub">${x.status==='RETURNED'?'The lead returned this spec with comments. Update and resubmit.':'Enter the model specification, then submit it for approval.'}</div></div><button class="btn primary" data-act="go" data-to="spec/${x.id}">Open spec sheet</button></div></div>`
+      : `<div class="note">With ${esc(person(x.assignee).name)} (R&D) to fill the spec sheet.</div>`;
+  } else if(x.status==='SUBMITTED'){
+    action = role==='lead' ? `<div class="panel"><div class="panel-h"><h3>Review the spec</h3></div><div class="panel-b"><p class="small sub" style="margin-top:0">Approving locks the spec for costing. Returning sends it back to ${esc(person(x.assignee).name)} with your note.</p>
+      <textarea class="inp" id="dec-note" rows="2" placeholder="Note for R&D (optional when approving)"></textarea>
+      <div class="row-x" style="margin-top:10px"><button class="btn" data-act="go" data-to="spec/${x.id}">Open spec sheet</button><span class="spacer"></span><button class="btn danger" data-act="decide" data-ok="0" data-id="${x.id}">Return to R&D</button><button class="btn primary" data-act="decide" data-ok="1" data-id="${x.id}">Approve spec</button></div></div></div>`
+      : `<div class="note">Spec submitted. Waiting for ${esc(person(x.lead).name)} to approve.</div>`;
+  } else if(['APPROVED','COSTING'].includes(x.status)){
+    action = role==='costing' ? `<div class="panel"><div class="panel-b row-x"><div style="flex:1"><b>Spec approved and locked</b><div class="small sub">Open the costing workbench. Chassis ${m.idu} + ${m.odu} base cost is pulled automatically.</div></div><button class="btn primary" data-act="go" data-to="costing/${x.id}">Open costing workbench</button></div></div>` : `<div class="note">Spec approved. The costing team is pricing this model.</div>`;
+  } else if(x.status==='COSTED'){
+    const v = DB.versions.filter(v=>v.req===x.id).slice(-1)[0];
+    action = role==='costing' && v ? `<div class="panel"><div class="panel-b row-x"><div style="flex:1"><b>Costed: ${fmt.inr(v.total)} per set (v${v.v})</b><div class="small sub">Review the customer sheet and send it from the system.</div></div><button class="btn" data-act="go" data-to="costing/${x.id}">Re-open costing</button><button class="btn primary" data-act="go" data-to="customer/${v.id}">Review & send</button></div></div>` : `<div class="note">Costed. Waiting to be sent to the customer.</div>`;
+  } else if(x.status==='SENT'){
+    const v = DB.versions.filter(v=>v.model===x.model && v.status==='SENT').slice(-1)[0];
+    action = `<div class="panel"><div class="panel-b row-x"><div style="flex:1"><b>Sent to the customer</b><div class="small sub">${v?'v'+v.v+' went to '+esc(v.sentTo):''}</div></div>${v&&can('history')?`<button class="btn" data-act="go" data-to="customer/${v.id}">View what was sent</button>`:''}</div></div>`;
+  }
+  el.innerHTML = `
+  <div class="page-head"><div class="t"><div class="crumbs"><a href="#/requests">Requests</a> / ${x.id}</div><h1>${esc(m.name)}</h1><p>${esc(x.note)}</p></div><div class="row-x">${stPill(x.status)}<span class="chip">${x.priority} priority</span></div></div>
+  ${flowHtml(x.status)}
+  <div class="grid g-main">
+    <div class="grid" style="align-content:start">${action}
+      <div class="panel"><div class="panel-h"><h3>Request details</h3></div><div class="panel-b"><table class="tbl"><tbody>
+        <tr><td class="muted">Customer / brand</td><td>${brandDot(m.brand)}</td><td class="muted">Model code</td><td><b>${m.code}</b></td></tr>
+        <tr><td class="muted">Chassis</td><td>${IDU_CHASSIS[m.idu].label}<br>${ODU_CHASSIS[m.odu].label}</td><td class="muted">Capacity</td><td>${m.tr} TR, ${m.star}-star, ISEER ${m.iseer}</td></tr>
+        <tr><td class="muted">Received</td><td>${x.received}, ${esc(x.via)}</td><td class="muted">Reply due</td><td>${x.due}</td></tr>
+        <tr><td class="muted">Team lead</td><td>${x.lead?av(x.lead,22)+' '+esc(person(x.lead).name):'Not allocated'}</td><td class="muted">R&D engineer</td><td>${x.assignee?av(x.assignee,22)+' '+esc(person(x.assignee).name):'—'}</td></tr>
+      </tbody></table></div></div>
+      ${x.specLog.length?`<div class="panel"><div class="panel-h"><h3>Spec change log</h3><span class="chip">${x.specLog.length} edits</span></div><div class="panel-b"><table class="tbl"><thead><tr><th>When</th><th>Who</th><th>Field</th><th>From</th><th>To</th></tr></thead><tbody>${x.specLog.slice().reverse().map(l=>`<tr><td class="small">${l.t}</td><td>${av(l.who,22)}</td><td>${esc(specLabel(l.k))}</td><td class="muted">${esc(l.from)}</td><td><b>${esc(l.to)}</b></td></tr>`).join('')}</tbody></table></div></div>`:''}
+    </div>
+    <div class="panel"><div class="panel-h"><h3>Timeline</h3></div><div class="panel-b"><ul class="tl">${x.hist.slice().reverse().map(h=>`<li><span class="b"></span><div><b>${esc(h.a)}</b></div><div class="small">${av(h.who,18)} ${esc(person(h.who).name)}${h.n?', '+esc(h.n):''}</div><div class="w">${h.t}</div></li>`).join('')}</ul></div></div>
+  </div>`;
+}
+ACT.allocate = async el=>{ const eng=$('input[name=eng]:checked').value; el.disabled=true; el.innerHTML='<span class="sp"></span>Allocating';
+  try{ await api.allocate(el.dataset.id, eng, APP.user.id); toast('Allocated to '+person(eng).name+'. They have been notified.'); renderShell(); render(); }catch(e){ toast(e.message,true); render(); } };
+ACT.decide = async el=>{ const ok=el.dataset.ok==='1', note=$('#dec-note')?$('#dec-note').value:''; if(!ok && !note){ toast('Add a note so R&D knows what to change', true); $('#dec-note').focus(); return; }
+  el.disabled=true; el.innerHTML='<span class="sp"></span>Saving'; await api.decide(el.dataset.id, ok, note, APP.user.id); toast(ok?'Spec approved and locked for costing':'Returned to R&D with your note'); renderShell(); render(); };
+
+/* ---------- spec sheets ---------- */
+function specLabel(k){ for(const [,rows] of SPEC_TEMPLATE) for(const r of rows) if(r[0]===k) return r[1]; return k; }
+function specRows(includeInternalSection){ const out=[]; SPEC_TEMPLATE.forEach(([sec,rows])=>{ const internalSec = sec.startsWith('Internal'); if(internalSec && !includeInternalSection) return; rows.forEach(r=>out.push({sec, k:r[0], label:r[1], internal:!!r[2]||internalSec})); }); return out; }
+
+async function viewSpecList(el, r, token){
+  el.innerHTML = loader('Fetching spec sheets');
+  const reqs = await api.requests(); if(stale(token)) return;
+  const list = reqs.filter(x=> APP.user.role!=='rnd' || x.assignee===APP.user.id);
+  el.innerHTML = `<div class="page-head"><div class="t"><h1>Spec sheets</h1><p>One spec sheet per request. Only R&D can type into it; leads approve it; costing reads it. Every edit is logged.</p></div></div>
+  <div class="panel"><div class="panel-b"><table class="tbl"><thead><tr><th>Request</th><th>Model</th><th>R&D engineer</th><th>Edits</th><th>Status</th><th></th></tr></thead><tbody>
+  ${list.map(x=>{ const m=model(x.model); return `<tr class="click" data-act="go" data-to="spec/${x.id}"><td><b>${x.id}</b></td><td>${esc(m.name)}</td><td>${x.assignee?av(x.assignee,22)+' '+esc(person(x.assignee).name):'<span class="muted">Not allocated</span>'}</td><td class="num">${x.specLog.length}</td><td>${stPill(x.status)}</td><td class="r"><span class="btn sm">Open</span></td></tr>`; }).join('')}
+  </tbody></table></div></div>`;
+}
+
+async function viewSpecSheet(el, r, token){
+  el.innerHTML = loader('Loading spec sheet');
+  await api.requests(); if(stale(token)) return;
+  const x = reqById(r.id), m=model(x.model), role=APP.user.role;
+  const editable = role==='rnd' && x.assignee===APP.user.id && ['RND','ALLOCATED','RETURNED'].includes(x.status);
+  const seeInternal = role==='costing';
+  const rows = specRows(seeInternal);
+  APP.spec.draft = {};
+  const total = specRows(true).length, cust = specRows(true).filter(r=>!r.internal).length;
+  let secs='', n=0;
+  SPEC_TEMPLATE.forEach(([sec])=>{
+    const rs = rows.filter(r=>r.sec===sec); if(!rs.length) return;
+    secs += `<div class="spec-sec"><h4>${esc(sec)} ${sec.startsWith('Internal')?'<span class="chip warn">Costing only</span>':''}</h4>${rs.map(rw=>{ n++; return `<div class="spec-row ${rw.internal?'internal':''}"><span class="no num">${n}</span><span>${esc(rw.label)}</span><input data-k="${rw.k}" value="${esc(x.spec[rw.k])}" ${editable && !rw.k.match(/^(cuKg|alKg|stKg|plKg|chRef|commonPct|exclRef)$/)?'':'readonly'} aria-label="${esc(rw.label)}"><span class="x small ${rw.internal?'':'muted'}">${rw.internal?'Internal only':'Customer sheet'}</span></div>`; }).join('')}</div>`;
+  });
+  el.innerHTML = `
+  <div class="page-head"><div class="t"><div class="crumbs"><a href="#/requests">Requests</a> / <a href="#/requests/${x.id}">${x.id}</a> / Spec sheet</div><h1>Spec sheet: ${esc(m.code)}</h1>
+    <p>${esc(m.name)}. ${total} rows internally; ${cust} rows go to the customer. Rows marked internal are stripped automatically from the customer sheet.</p></div>
+    <div class="row-x">${stPill(x.status)}
+    ${editable?`<button class="btn" data-act="spec-save" data-id="${x.id}" id="specSave" disabled>Save changes</button><button class="btn primary" data-act="spec-submit" data-id="${x.id}">Submit for approval</button>`:''}
+    ${role==='lead'&&x.status==='SUBMITTED'?`<button class="btn" data-act="go" data-to="requests/${x.id}">Approve or return</button>`:''}
+    ${role==='costing'&&['APPROVED','COSTING','COSTED','SENT'].includes(x.status)?`<button class="btn primary" data-act="go" data-to="costing/${x.id}">Open costing</button>`:''}</div></div>
+  ${!editable?`<div class="note" style="margin-bottom:12px">${role==='rnd'?'This spec is read-only: it is not assigned to you, or it has already been submitted.':'Read-only for '+ROLES[role].label+'. Only the assigned R&D engineer can edit specifications.'}</div>`:`<div class="note" style="margin-bottom:12px">Edit any field. Changed fields turn copper; saving writes each change to the audit log.</div>`}
+  <div class="panel"><div class="panel-b">${secs}</div></div>`;
+  if(editable) $$('.spec-row input:not([readonly])').forEach(i=>i.addEventListener('input',()=>{ const k=i.dataset.k; if(i.value!==String(x.spec[k])){ APP.spec.draft[k]=i.value; i.classList.add('changed'); } else { delete APP.spec.draft[k]; i.classList.remove('changed'); } $('#specSave').disabled=!Object.keys(APP.spec.draft).length; $('#specSave').textContent = Object.keys(APP.spec.draft).length?'Save '+Object.keys(APP.spec.draft).length+' change'+(Object.keys(APP.spec.draft).length>1?'s':''):'Save changes'; }));
+}
+ACT['spec-save'] = async el=>{ el.disabled=true; el.innerHTML='<span class="sp"></span>Saving'; const n=Object.keys(APP.spec.draft).length; await api.saveSpec(el.dataset.id, APP.spec.draft, APP.user.id); toast(n+' change'+(n>1?'s':'')+' saved and logged'); render(); };
+ACT['spec-submit'] = async el=>{ if(Object.keys(APP.spec.draft).length) await api.saveSpec(el.dataset.id, APP.spec.draft, APP.user.id); el.disabled=true; el.innerHTML='<span class="sp"></span>Submitting'; await api.submitSpec(el.dataset.id, APP.user.id); toast('Submitted. The team lead has been notified.'); renderShell(); go('requests/'+el.dataset.id); };
+
+/* ===== Costing, commodities, simulation, SAP BOM, history, customer sheet, library, admin ===== */
+const ZONE_MAT = {coil:'CU', fan:'PL', body:'PL', louver:'PL', plate:'ST', pcb:'BO', cabinet:'ST', base:'ST', comp:'CP', pipe:'RF'};
+const ZONE_NAME = {coil:'Heat exchanger coil', fan:'Fan & motor', body:'Body mouldings', louver:'Louvers & swing', plate:'Mounting plate', pcb:'Electronics', cabinet:'Cabinet', base:'Base & mounts', comp:'Compressor', pipe:'Piping & refrigerant'};
+const matColor = m=>COLORS[m]||'#9AA8A1';
+
+function unitArt(c, focus){
+  const z={}; c.lines.forEach(l=>{ const k=l.unit+':'+l.zone; z[k]=(z[k]||0)+l.cost; });
+  const part=(k, inner)=>{ const [u,zn]=k.split(':'); return `<g class="part ${focus===k?'on':''}" data-act="wb-zone" data-z="${k}" data-tip="<b>${u} ${ZONE_NAME[zn]}</b><br>${fmt.inr(z[k]||0)} per set<br>Click to filter parts">${inner}</g>`; };
+  const fin=(x,y,w,h)=>{ let s=''; for(let i=x+4;i<x+w;i+=6) s+=`<line x1="${i}" y1="${y+2}" x2="${i}" y2="${y+h-2}" stroke="rgba(255,255,255,.35)" stroke-width="1"/>`; return s; };
+  return `<svg class="unit-art ${focus?'focus':''}" viewBox="0 0 520 300" role="img" aria-label="Exploded view of indoor and outdoor unit, coloured by material">
+    ${part('IDU:plate',`<rect x="70" y="6" width="380" height="7" rx="3" fill="${COLORS.ST}"/>`)}
+    ${part('IDU:body',`<rect x="20" y="18" width="480" height="112" rx="22" fill="#2A4A40" stroke="#4E6E63"/>`)}
+    ${part('IDU:coil',`<rect x="44" y="30" width="432" height="38" rx="6" fill="${COLORS.CU}"/>${fin(44,30,432,38)}`)}
+    ${part('IDU:fan',`<rect x="62" y="76" width="350" height="24" rx="12" fill="${COLORS.PL}"/>${[...Array(14)].map((_,i)=>`<line x1="${78+i*24}" y1="79" x2="${84+i*24}" y2="97" stroke="rgba(0,0,0,.25)"/>`).join('')}`)}
+    ${part('IDU:pcb',`<rect x="424" y="76" width="56" height="24" rx="4" fill="#9AA8A1"/><rect x="432" y="82" width="14" height="10" fill="#0E2E25" opacity=".5"/>`)}
+    ${part('IDU:louver',`<rect x="44" y="108" width="432" height="12" rx="6" fill="#D9C27A"/>`)}
+    ${part('ODU:cabinet',`<rect x="40" y="152" width="440" height="128" rx="10" fill="#2A4A40" stroke="${COLORS.ST}" stroke-width="2"/>`)}
+    ${part('ODU:coil',`<rect x="52" y="162" width="22" height="108" rx="4" fill="${COLORS.CU}"/>${[...Array(16)].map((_,i)=>`<line x1="54" y1="${166+i*6.5}" x2="72" y2="${166+i*6.5}" stroke="rgba(255,255,255,.35)"/>`).join('')}`)}
+    ${part('ODU:fan',`<circle cx="180" cy="216" r="52" fill="#173F35" stroke="${COLORS.PL}" stroke-width="3"/>${[0,120,240].map(a=>`<ellipse cx="180" cy="190" rx="13" ry="24" fill="${COLORS.PL}" transform="rotate(${a} 180 216)"/>`).join('')}<circle cx="180" cy="216" r="9" fill="#0E2E25"/>`)}
+    ${part('ODU:comp',`<rect x="306" y="198" width="54" height="72" rx="20" fill="${COLORS.CP}"/><rect x="306" y="214" width="54" height="5" fill="rgba(255,255,255,.25)"/>`)}
+    ${part('ODU:pipe',`<path d="M333 198 C333 172 392 176 404 214 L470 214" fill="none" stroke="${COLORS.RF}" stroke-width="5" stroke-linecap="round"/><path d="M360 248 L470 248" fill="none" stroke="${COLORS.CU}" stroke-width="5" stroke-linecap="round"/>`)}
+    ${part('ODU:pcb',`<rect x="392" y="162" width="76" height="34" rx="4" fill="#9AA8A1"/><rect x="400" y="170" width="20" height="14" fill="#0E2E25" opacity=".5"/>`)}
+    ${part('ODU:base',`<rect x="34" y="282" width="452" height="9" rx="4" fill="${COLORS.ST}"/>`)}
+  </svg>`;
+}
+
+async function viewCostingList(el, r, token){
+  el.innerHTML = loader('Fetching costing queue');
+  const reqs = await api.requests(); if(stale(token)) return;
+  const ready = reqs.filter(x=>['APPROVED','COSTING','COSTED','SENT'].includes(x.status));
+  const waiting = reqs.filter(x=>!['APPROVED','COSTING','COSTED','SENT'].includes(x.status));
+  const snap=snapNow();
+  el.innerHTML = `<div class="page-head"><div class="t"><h1>Costing</h1><p>Costing opens once a team lead approves the spec. The chassis base cost loads from the chassis master; you add or remove the brand's exclusive parts.</p></div><span class="chip ${APP.mode==='aicm'?'mint':'warn'}"><span class="d"></span>${esc(basisLabel())}</span></div>
+  <div class="panel" style="margin-bottom:16px"><div class="panel-h"><h3>Ready for costing</h3></div><div class="panel-b"><table class="tbl"><thead><tr><th>Request</th><th>Model</th><th>Chassis</th><th class="r">Estimate at current rates</th><th>Status</th><th></th></tr></thead><tbody>
+  ${ready.map(x=>{ const m=model(x.model); return `<tr class="click" data-act="go" data-to="costing/${x.id}"><td><b>${x.id}</b></td><td>${esc(m.name)}</td><td><span class="chip">${m.idu}</span> <span class="chip">${m.odu}</span></td><td class="r num">${fmt.inr(compute(m,snap).total)}</td><td>${stPill(x.status)}</td><td class="r"><span class="btn sm primary">Open workbench</span></td></tr>`; }).join('')}
+  </tbody></table></div></div>
+  <div class="panel"><div class="panel-h"><h3>Not yet approved</h3><span class="chip">${waiting.length}</span></div><div class="panel-b"><table class="tbl"><tbody>${waiting.map(x=>`<tr><td><b>${x.id}</b></td><td>${esc(model(x.model).name)}</td><td>${stPill(x.status)}</td><td class="r small muted">Opens after lead approval</td></tr>`).join('')}</tbody></table></div></div>`;
+}
+
+async function viewWorkbench(el, r, token){
+  el.innerHTML = loader('Loading chassis masters and rates');
+  const x = reqById(r.id); const m = model(x.model);
+  if(!['APPROVED','COSTING','COSTED','SENT'].includes(x.status)){ el.innerHTML = `<div class="page-head"><div class="t"><div class="crumbs"><a href="#/costing">Costing</a> / ${x.id}</div><h1>${esc(m.name)}</h1></div></div><div class="lock-note"><div class="ic">⏳</div><div><b>The spec isn't approved yet.</b><div class="small">Costing opens after the team lead approves the spec sheet. Current status: ${STATUS[x.status].label}.</div></div></div>`; return; }
+  await Promise.all([api.chassis(m.idu), api.chassis(m.odu), api.commodities(APP.mode), api.startCosting(x.id, APP.user.id)]);
+  if(stale(token)) return;
+  if(APP.wb.reqId!==x.id) APP.wb = {reqId:x.id, excl:m.excl.slice(), exPrice:{}, priceMode:'lpp', zone:null, unit:'all'};
+  wbRender();
+}
+function wbRender(){
+  const el=$('#view'), w=APP.wb, x=reqById(w.reqId), m=model(x.model), snap=snapNow();
+  const c = compute(m, snap, {excl:w.excl, exPrice:w.exPrice, priceMode:w.priceMode});
+  const cAlt = compute(m, snap, {excl:w.excl, exPrice:w.exPrice, priceMode:w.priceMode==='lpp'?'avg':'lpp'});
+  const vers = DB.versions.filter(v=>v.model===m.id).sort((a,b)=>a.v-b.v), last = vers[vers.length-1];
+  const lines = c.lines.filter(l=>(!w.zone || (l.unit+':'+l.zone)===w.zone) && (w.unit==='all'||l.unit===w.unit));
+  const R=c.R;
+  const rateTxt = l=> l.type==='mat' ? `${fmt.n(l.kg,2)} kg × ${fmt.inr(R[l.m],1)}/kg` : l.type==='cp' ? `Landed ${fmt.inr(R.CP)} × ${ODU_CHASSIS[m.odu].cp}` : (w.priceMode==='lpp'?'LPP ':'SAP avg ')+fmt.inr(w.priceMode==='lpp'?l.lpp:l.avg);
+  const steps=[{label:'Chassis common parts', value:c.common, kind:'add', color:'#22564A'},{label:'Exclusive parts', value:c.exclusive, kind:'add', color:COLORS.CU},{label:'Assembly & testing', value:c.assembly, kind:'add', color:'#7A8781'},{label:'Freight & warranty', value:c.freight+c.warranty, kind:'add', color:'#7A8781'},{label:'Contingency', value:c.contingency, kind:'add', color:'#C79A1E'},{label:'Margin', value:c.margin, kind:'add', color:'#1E9C94'},{label:'Quote per set', value:c.total, kind:'total'}];
+  const wts=c.weights, catalogue=Object.keys(EXCLUSIVES).filter(k=>!w.excl.includes(k));
+  const delta = last ? c.total-last.total : 0;
+  el.innerHTML = `
+  <div class="page-head"><div class="t"><div class="crumbs"><a href="#/costing">Costing</a> / <a href="#/requests/${x.id}">${x.id}</a></div><h1>${esc(m.name)}</h1>
+    <p>${m.code}. Chassis ${IDU_CHASSIS[m.idu].label} and ${ODU_CHASSIS[m.odu].label}, priced for ${QUARTER_BASIS.quoteFor}.</p></div>
+    <div class="row-x"><button class="btn" data-act="go" data-to="spec/${x.id}">View spec</button><button class="btn" data-act="go" data-to="simulation">Simulate rates</button><button class="btn primary" data-act="wb-save">Save as version ${vers.length+1}</button></div></div>
+  <section class="cost-hero">
+    <div class="l">
+      <span class="pill ${APP.mode==='manual'?'manual':''}"><i></i>${esc(basisLabel())}</span>
+      <div style="margin-top:14px;color:#9DB8AC;font-size:13px">Quote price per set (IDU + ODU)</div>
+      <div class="big num" id="wbTotal">${fmt.inr(c.total)}<small>/set</small></div>
+      ${last?`<div style="margin-top:8px;font-size:13px;color:${delta>0?'#F08A78':'#6EDDB4'}">${delta>0?'▲':'▼'} ${fmt.inr(Math.abs(delta))} (${fmt.pct(delta/last.total)}) vs v${last.v} sent ${last.on}, ${last.quarter}</div>`:''}
+      <div class="meta">
+        <div><b class="num">${fmt.inr(c.material)}</b>Material</div>
+        <div><b class="num">${c.lines.length} of ${c.lines.length+c.exLines.length}</b>Parts from chassis master (${Math.round(c.lines.length/(c.lines.length+c.exLines.length)*100)}%)</div>
+        <div><b class="num">${fmt.inr(c.exclusive)}</b>Exclusive (${w.excl.length} items)</div>
+        <div><b class="num">${fmt.n(wts.CU,2)} kg</b>Copper per set</div>
+      </div>
+    </div>
+    <div class="r">${unitArt(c, w.zone)}
+      <div class="art-legend">${['CU','AL','PL','ST','CP','RF'].map(k=>`<span class="mat"><i style="background:${COLORS[k]}"></i>${MAT_NAME[k]}</span>`).join('')}<span class="mat"><i style="background:#9AA8A1"></i>Bought-out</span>${w.zone?`<button class="btn sm" data-act="wb-zone" data-z="" style="margin-left:auto;background:transparent;color:#CFE3DA;border-color:rgba(255,255,255,.2)">Clear filter</button>`:'<span style="margin-left:auto">Click a part to filter</span>'}</div>
+    </div>
+  </section>
+  <div class="grid g-main" style="margin-top:16px">
+    <div class="grid" style="align-content:start">
+      <div class="panel"><div class="panel-h"><h3>How the price builds up</h3><span class="small muted">Hover a bar for values</span></div><div class="panel-b">${waterfall(steps,{w:680,h:260})}</div></div>
+      <div class="panel"><div class="panel-h"><h3>Chassis common parts</h3>
+        <div class="seg">${[['all','Both units'],['IDU','Indoor'],['ODU','Outdoor']].map(([k,l])=>`<button class="${w.unit===k?'on':''}" data-act="wb-unit" data-v="${k}">${l}</button>`).join('')}</div></div>
+        <div class="panel-b"><p class="small sub" style="margin-top:0">${w.zone?'Filtered to '+esc(w.zone.split(':')[0]+' '+ZONE_NAME[w.zone.split(':')[1]])+'. ':''}Pulled from the ${m.idu} and ${m.odu} chassis masters. Material lines re-price from the commodity master; bought-outs use the latest purchase price.</p>
+        <table class="tbl"><thead><tr><th>Part</th><th>Unit</th><th>Material</th><th>Basis</th><th class="r">Cost</th></tr></thead><tbody>
+        ${lines.map(l=>`<tr><td><b>${esc(l.name)}</b><div class="small muted">${l.pc}</div></td><td><span class="chip">${l.unit}</span></td><td><span class="mat"><i style="background:${l.type==='bo'?'#9AA8A1':matColor(l.type==='cp'?'CP':l.m)}"></i>${l.type==='bo'?'Bought-out':MAT_NAME[l.type==='cp'?'CP':l.m]}</span></td><td class="small sub">${rateTxt(l)}</td><td class="r num">${fmt.inr(l.cost)}</td></tr>`).join('')}
+        </tbody><tfoot><tr><td colspan="4">${lines.length===c.lines.length?'Chassis common parts total':'Filtered subtotal'}</td><td class="r num">${fmt.inr(lines.reduce((a,b)=>a+b.cost,0))}</td></tr></tfoot></table></div></div>
+      <div class="panel"><div class="panel-h"><h3>Exclusive parts for ${esc(m.brand)}</h3><span class="chip">${w.excl.length} items</span></div><div class="panel-b">
+        <p class="small sub" style="margin-top:0">Parts that differ from the common chassis. Add or remove items; bought-out prices can be edited for this quote.</p>
+        <table class="tbl"><thead><tr><th>Part</th><th>Type</th><th class="r">Price</th><th class="r">Effect</th><th></th></tr></thead><tbody>
+        ${c.exLines.map(e=>`<tr><td><b>${esc(e.name)}</b></td><td class="small">${e.type==='mat'?`<span class="mat"><i style="background:${matColor(e.m)}"></i>${fmt.n(e.kg,2)} kg ${MAT_NAME[e.m].toLowerCase()}</span>`:'Bought-out'}</td>
+          <td class="r">${e.type==='bo'?`<input class="cell num" data-act="noop" data-ex="${e.k}" value="${Math.round(Math.abs(e.cost))}" aria-label="Price for ${esc(e.name)}">`:'<span class="small muted">From rates</span>'}</td>
+          <td class="r num ${e.sign<0?'diff-dn':''}">${e.sign<0?'− ':'+ '}${fmt.inr(Math.abs(e.cost))}</td><td class="r"><button class="btn sm ghost" data-act="wb-ex-del" data-k="${e.k}" aria-label="Remove">Remove</button></td></tr>`).join('')}
+        </tbody><tfoot><tr><td colspan="3">Exclusive parts net</td><td class="r num">${fmt.inr(c.exclusive)}</td><td></td></tr></tfoot></table>
+        ${catalogue.length?`<div class="row-x" style="margin-top:10px"><select class="sel" id="exAdd" style="max-width:360px">${catalogue.map(k=>`<option value="${k}">${esc(EXCLUSIVES[k].name)}</option>`).join('')}</select><button class="btn" data-act="wb-ex-add">Add exclusive part</button></div>`:''}
+      </div></div>
+      <div class="panel"><div class="panel-h"><h3>Overheads, contingency and margin</h3></div><div class="panel-b"><table class="tbl"><tbody>
+        <tr><td>Assembly & testing</td><td class="small sub">IDU ₹${OVERHEADS.assembly.IDU} + ODU ₹${OVERHEADS.assembly.ODU} per set</td><td class="r num">${fmt.inr(c.assembly)}</td></tr>
+        <tr><td>Inbound freight</td><td class="small sub">${(OVERHEADS.freightPct*100).toFixed(1)}% of material</td><td class="r num">${fmt.inr(c.freight)}</td></tr>
+        <tr><td>Warranty provision</td><td class="small sub">${(OVERHEADS.warrantyPct*100).toFixed(1)}% of material</td><td class="r num">${fmt.inr(c.warranty)}</td></tr>
+        <tr><td>Contingency: ${esc(OVERHEADS.contingency.label)}</td><td class="small sub">₹1,00,000 ÷ ${fmt.n(OVERHEADS.contingency.lotQty)} sets = ${fmt.inr(c.contRaw)}, capped at ${(OVERHEADS.contingency.capPct*100).toFixed(1)}% of material (${fmt.inr(c.contCap)})</td><td class="r num">${fmt.inr(c.contingency)}</td></tr>
+        <tr><td>Margin</td><td class="small sub">${(OVERHEADS.marginPct*100).toFixed(0)}% on cost</td><td class="r num">${fmt.inr(c.margin)}</td></tr>
+      </tbody><tfoot><tr><td colspan="2">Quote price per set</td><td class="r num">${fmt.inr(c.total)}</td></tr></tfoot></table></div></div>
+    </div>
+    <div class="grid" style="align-content:start">
+      <div class="panel"><div class="panel-h"><h3>Rates used</h3><a href="#/commodities" class="small">Commodity master</a></div><div class="panel-b"><table class="tbl"><tbody>
+        ${['CU','AL','ST','PL','RF','CP'].map(k=>{ const cm=COMMODITIES.find(q=>q.code===k); return `<tr><td><span class="mat"><i style="background:${COLORS[k]}"></i>${esc(cm.name)}</span><div class="small muted">${fmt.n(snap[k], snap[k]<200?2:0)} ${cm.unit}</div></td><td class="r num"><b>${fmt.inr(R[k], k==='CP'?0:1)}</b><div class="small muted">${k==='CP'?'landed/unit':'landed/kg'}</div></td></tr>`; }).join('')}
+        <tr><td>INR per USD</td><td class="r num"><b>${fmt.n(snap.FX,2)}</b></td></tr>
+      </tbody></table></div></div>
+      <div class="panel"><div class="panel-h"><h3>Material weight per set</h3></div><div class="panel-b" style="display:flex;gap:16px;align-items:center;flex-wrap:wrap">
+        ${donut(['CU','AL','ST','PL','RF'].map(k=>({label:MAT_NAME[k], value:wts[k], color:COLORS[k]})),{size:170, unit:'kg', center:fmt.n(Object.values(wts).reduce((a,b)=>a+b,0),1)+' kg', centerSub:'critical materials', label:'Material weights'})}
+        <div style="flex:1;min-width:140px">${['CU','AL','ST','PL','RF'].map(k=>`<div class="row-x small" style="padding:3px 0"><span class="mat"><i style="background:${COLORS[k]}"></i>${MAT_NAME[k]}</span><span class="spacer"></span><b class="num">${fmt.n(wts[k],2)} kg</b></div>`).join('')}</div>
+      </div></div>
+      <div class="panel"><div class="panel-h"><h3>Bought-out price basis</h3></div><div class="panel-b">
+        <div class="seg" style="margin-bottom:10px"><button class="${w.priceMode==='lpp'?'on':''}" data-act="wb-price" data-v="lpp">Latest purchase price</button><button class="${w.priceMode==='avg'?'on':''}" data-act="wb-price" data-v="avg">SAP moving average</button></div>
+        <p class="small sub" style="margin:0">The SAP BOM carries a moving average that blends old cheap and new expensive buys. Quotes use LPP. Switching changes this quote by <b class="${cAlt.total>c.total?'diff-up':'diff-dn'}">${cAlt.total>c.total?'+':'−'}${fmt.inr(Math.abs(cAlt.total-c.total))}</b> per set.</p>
+      </div></div>
+      <div class="panel"><div class="panel-h"><h3>Previous versions</h3><a href="#/history" class="small">Quote history</a></div><div class="panel-b">
+        ${vers.length?`<ul class="tl">${vers.slice().reverse().map(v=>`<li><span class="b"></span><div><b>v${v.v}</b>, ${v.quarter} <span class="num" style="float:right">${fmt.inr(v.total)}</span></div><div class="w">${v.on}, ${esc(person(v.by).name)}, ${v.source}${v.status==='DRAFT'?', draft':''}</div></li>`).join('')}</ul>`:'<div class="empty">First costing for this model.</div>'}
+      </div></div>
+    </div>
+  </div>`;
+  $$('input[data-ex]').forEach(i=>i.addEventListener('change',()=>{ const v=parseFloat(i.value); if(isNaN(v)||v<0){ toast('Enter a price of zero or more', true); i.value=Math.round(EXCLUSIVES[i.dataset.ex].price); return; } APP.wb.exPrice[i.dataset.ex]=v; wbRender(); toast('Price updated for this quote'); }));
+}
+ACT.noop = ()=>{};
+ACT['wb-zone'] = el=>{ APP.wb.zone = el.dataset.z || null; if(APP.wb.zone) APP.wb.unit='all'; wbRender(); };
+ACT['wb-unit'] = el=>{ APP.wb.unit=el.dataset.v; APP.wb.zone=null; wbRender(); };
+ACT['wb-price'] = el=>{ APP.wb.priceMode=el.dataset.v; wbRender(); };
+ACT['wb-ex-del'] = el=>{ APP.wb.excl = APP.wb.excl.filter(k=>k!==el.dataset.k); wbRender(); toast('Removed '+EXCLUSIVES[el.dataset.k].name.toLowerCase()); };
+ACT['wb-ex-add'] = ()=>{ const k=$('#exAdd').value; APP.wb.excl.push(k); wbRender(); toast('Added '+EXCLUSIVES[k].name.toLowerCase()); };
+ACT['wb-save'] = ()=>{
+  const w=APP.wb, x=reqById(w.reqId), m=model(x.model), snap=snapNow(), c=compute(m,snap,{excl:w.excl, exPrice:w.exPrice, priceMode:w.priceMode});
+  drawer('Save costing version', `<div class="kpi panel"><div class="l">Quote price per set</div><div class="v num">${fmt.inr(c.total)}</div><div class="f">${esc(basisLabel())}</div></div>
+    <div class="note">Saving freezes the rates, exclusive parts and prices used, so this exact number can be reproduced years later.</div>
+    <table class="tbl"><tbody><tr><td class="muted">Model</td><td>${esc(m.name)}</td></tr><tr><td class="muted">Request</td><td>${x.id}</td></tr><tr><td class="muted">Copper basis</td><td class="num">${fmt.n(snap.CU,2)} USD/MT</td></tr><tr><td class="muted">FX</td><td class="num">${fmt.n(snap.FX,2)}</td></tr><tr><td class="muted">Exclusive parts</td><td>${w.excl.length} items</td></tr></tbody></table>
+    <div class="field"><label>Note for this version</label><textarea class="inp" id="verNote" rows="3">Q4 quote. ${APP.mode==='aicm'?'Rates from AICM Q3 average.':'Manual rates.'}</textarea></div>`,
+    `<div class="row-x"><span class="spacer"></span><button class="btn" data-act="close">Cancel</button><button class="btn primary" data-act="wb-save-go">Save version</button></div>`);
+};
+ACT['wb-save-go'] = async el=>{
+  const w=APP.wb, x=reqById(w.reqId), m=model(x.model), snap=snapNow(), c=compute(m,snap,{excl:w.excl, exPrice:w.exPrice, priceMode:w.priceMode});
+  el.disabled=true; el.innerHTML='<span class="sp"></span>Saving';
+  const v = await api.saveVersion(x.id, {snap, excl:w.excl.slice(), total:c.total, material:c.material, source:APP.mode==='aicm'?'AICM':'Manual', basis:APP.mode==='aicm'?'Q3-2026':'Manual', note:$('#verNote').value}, APP.user.id);
+  closeOverlay(); toast('Saved v'+v.v+' at '+fmt.inr(v.total)+' per set'); renderShell(); go('customer/'+v.id);
+};
+
+/* ---------- commodities ---------- */
+async function viewCommodities(el, r, token){
+  el.innerHTML = loader('Fetching commodity master');
+  await api.commodities(APP.mode); if(stale(token)) return;
+  APP.comSel = APP.comSel || 'CU';
+  const aicm = APP.mode==='aicm', snap=snapNow(), sel=COMMODITIES.find(c=>c.code===APP.comSel);
+  const L = sel.code==='FX' ? null : landed(sel.code, snap);
+  const sentV = DB.versions.filter(v=>v.status==='SENT').sort((a,b)=>a.on.localeCompare(b.on)), lastQ = sentV[sentV.length-1];
+  const byQ = {}; sentV.forEach(v=>byQ[v.quarter]=v.snap[sel.code]); const qs=Object.keys(byQ);
+  const trend = aicm ? `${lineChart([{name:sel.index, values:sel.hist, color:COLORS[sel.code]||'#465650'}], ['Nov','Jan','Feb','Mar','Apr','Jun','Jul','Sep','Oct','Nov'], {h:170, label:sel.index+' trend', band:[6,7]})}<p class="small sub" style="margin:6px 0 12px">Shaded: Q3 window used as the basis for Q4 quotes.</p>`
+    : `${lineChart([{name:'Rate used in quotes', values:qs.map(q=>byQ[q]), color:COLORS[sel.code]||'#465650'}], qs.map(q=>q.replace(' 20',' \'')), {h:170, label:'Rates used in past quotes'})}<p class="small sub" style="margin:6px 0 12px">Without AICM there is no live index, so this shows the rate each past quote used.</p>`;
+  el.innerHTML = `
+  <div class="page-head"><div class="t"><h1>Commodity master</h1><p>${aicm?'Linked to AICM. Index prices and FX flow in from the AICM commodity page; quotes for the next quarter use the last quarter\'s average.':'Manual mode, for when AICM is not available. The costing team types rates or uploads a rates sheet; every quote records which rates it used.'}</p></div>
+    <div class="row-x">${aicm?`<span class="small muted">Last sync ${DB.lastSync}</span><button class="btn primary" data-act="com-sync">Sync from AICM</button>`:`<button class="btn" data-act="com-upload">Upload rates sheet</button><button class="btn primary" data-act="com-save">Save rates</button>`}</div></div>
+  <div class="grid g-main">
+    <div class="panel"><div class="panel-b" style="padding-top:8px"><table class="tbl"><thead><tr><th>Commodity</th><th>Index & source</th>${aicm?'<th class="r">Spot</th><th class="r">Q1 avg</th><th class="r">Q2 avg</th>':'<th class="r">Last quote used</th>'}<th class="r">${aicm?'Q3 avg (used)':'Manual rate (used)'}</th><th class="r">Landed</th></tr></thead><tbody>
+    ${COMMODITIES.map(c=>{ const lv = c.code==='FX'?null:landed(c.code,snap); const d=c.code==='FX'?0:0; return `<tr class="click ${APP.comSel===c.code?'':''}" data-act="com-sel" data-c="${c.code}" style="${APP.comSel===c.code?'background:var(--mint-wash)':''}">
+      <td><span class="mat"><i style="background:${COLORS[c.code]||'#465650'}"></i><b>${esc(c.name)}</b></span><div class="small muted">${c.unit}</div></td>
+      <td class="small">${esc(c.index)}<div class="muted">${aicm?'AICM: '+esc(c.src):'Entered by costing team'}</div></td>
+      ${aicm?`<td class="r num">${fmt.n(c.cur, c.cur<200?2:0)}</td><td class="r num muted">${fmt.n(c.q1, c.q1<200?2:0)}</td><td class="r num muted">${fmt.n(c.q2, c.q2<200?2:0)}</td>`:`<td class="r num muted">${fmt.n(lastQ.snap[c.code], lastQ.snap[c.code]<200?2:0)}<div class="small">${lastQ.quarter}</div></td>`}
+      <td class="r num">${aicm?`<b>${fmt.n(c.q3, c.q3<200?2:0)}</b>`:`<input class="cell num" data-act="noop" data-man="${c.code}" value="${DB.manual[c.code]}" aria-label="Manual rate for ${esc(c.name)}">${DB.manual[c.code]!==lastQ.snap[c.code]?`<div class="small ${DB.manual[c.code]>lastQ.snap[c.code]?'diff-up':'diff-dn'}">${fmt.pct((DB.manual[c.code]-lastQ.snap[c.code])/lastQ.snap[c.code])} vs last quote</div>`:''}`}</td>
+      <td class="r num">${lv?`<b>${fmt.inr(lv.value, c.code==='CP'?0:1)}</b><div class="small muted">${lv.unit}</div>`:'<span class="muted small">FX input</span>'}</td></tr>`; }).join('')}
+    </tbody></table>
+    ${!aicm&&DB.manualFile?`<div class="note" style="margin-top:10px">Rates loaded from <b>${esc(DB.manualFile)}</b>. Edit any cell, then save.</div>`:''}
+    </div></div>
+    <div class="grid" style="align-content:start">
+      <div class="panel"><div class="panel-h"><h3>${esc(sel.name)}</h3><span class="chip">${sel.structure==='import'?'Imported, duty stack':sel.structure==='lme'?'LME linked':sel.structure==='domestic'?'Domestic index':sel.structure==='polymer'?'Polymer index':sel.structure==='fx'?'Currency':'Supplier rate'}</span></div><div class="panel-b">
+        ${trend}
+        ${L?`<div class="formula">${L.steps.map(s=>`<div class="row-x" style="${s[3]?'opacity:.55':''}"><span>${esc(s[0])}</span><span class="spacer"></span><b class="num">${fmt.n(s[1], s[1]<500?2:0)}</b> <span class="o">${s[2]}</span></div>`).join('')}<div class="row-x" style="border-top:1px solid var(--line);margin-top:6px;padding-top:6px"><b>Landed cost</b><span class="spacer"></span><b class="num">${fmt.inr(L.value, sel.code==='CP'?0:2)}</b> <span class="o">${L.unit}</span></div></div>`:`<div class="formula">FX converts every USD-linked commodity and imported part. A 1% move in the rupee moves copper, aluminium, resin and compressor costs together.</div>`}
+        ${sel.structure==='import'?`<p class="small sub">HSN ${sel.hsn}. Duty rates from the ICEGATE customs calculator; IGST is shown but not costed because it is claimed as input credit.</p>`:''}
+        <p class="small muted" style="margin-bottom:0">Every commodity keeps its own working: copper is LME-linked with a tube conversion, compressors carry a customs duty stack, steel follows a domestic HRC index. Structures to be confirmed with Amber.</p>
+      </div></div>
+    </div>
+  </div>`;
+}
+ACT['com-sel'] = (el,e)=>{ if(e.target.tagName==='INPUT') return; APP.comSel=el.dataset.c; render(); };
+ACT['com-sync'] = async el=>{ el.disabled=true; el.innerHTML='<span class="sp"></span>Syncing from AICM'; await api.syncAICM(APP.user.id); toast(COMMODITIES.length+' rates synced from AICM. Q3 averages unchanged.'); render(); };
+ACT['com-save'] = async el=>{ const vals={}; let bad=false; $$('input[data-man]').forEach(i=>{ const v=parseFloat(i.value); if(isNaN(v)||v<=0) bad=true; vals[i.dataset.man]=v; }); if(bad){ toast('Every rate needs a number above zero', true); return; } el.disabled=true; el.innerHTML='<span class="sp"></span>Saving'; await api.saveManual(vals, APP.user.id); toast('Manual rates saved. New quotes will use them.'); render(); };
+ACT['com-upload'] = ()=>{ drawer('Upload rates sheet', `<p class="sub" style="margin:0">Use the costing team's rates template: one row per commodity with code, rate and unit.</p>
+  <div class="upload" data-act="com-upload-go" style="padding:34px">Drop <b>Rates_Q4_FY27.xlsx</b> here, or click to choose a file</div>
+  <table class="tbl"><thead><tr><th>Code</th><th>Rate in sheet</th><th>Unit</th></tr></thead><tbody>${[['CU',15000,'USD/MT'],['AL',3300,'USD/MT'],['FX',95.5,'INR/USD'],['ST',47500,'INR/MT'],['PL',1560,'USD/MT'],['CP',73,'USD/unit'],['RF',530,'INR/kg']].map(r=>`<tr><td>${r[0]}</td><td class="num">${fmt.n(r[1],r[1]<200?2:0)}</td><td class="muted">${r[2]}</td></tr>`).join('')}</tbody></table>`); };
+ACT['com-upload-go'] = async el=>{ el.innerHTML='<span class="btn ghost" style="pointer-events:none"><span class="sp"></span>Reading Rates_Q4_FY27.xlsx</span>'; await api.uploadManual('Rates_Q4_FY27.xlsx', APP.user.id); closeOverlay(); toast('7 rates read from Rates_Q4_FY27.xlsx'); render(); };
+
+/* ---------- simulation ---------- */
+const SIM_KEYS = [['CU','Copper'],['AL','Aluminium'],['FX','INR per USD'],['ST','Steel'],['PL','Resin'],['CP','Compressor CIF'],['RF','Refrigerant']];
+function viewSimulation(el){
+  if(!APP.sim) APP.sim = {pct:{CU:0,AL:0,FX:0,ST:0,PL:0,CP:0,RF:0}, models:['M-DK18','M-VL18','M-LG24','M-GD12'], focus:'M-DK18', name:'Copper spike scenario'};
+  simRender();
+}
+function simSnap(base){ const s={...base}; Object.entries(APP.sim.pct).forEach(([k,p])=>s[k]=base[k]*(1+p/100)); return s; }
+function simRender(){
+  const el=$('#view'), S=APP.sim, base=snapNow(), scen=simSnap(base), fm=model(S.focus);
+  const rows = S.models.map(id=>{ const m=model(id), b=compute(m,base).total, s=compute(m,scen).total; return {m,b,s,d:s-b}; });
+  const bF = compute(fm,base).total;
+  const impact = SIM_KEYS.map(([k,l])=>{ const one={...base}; one[k]=base[k]*(1+S.pct[k]/100); return {label:l, value:compute(fm,one).total-bF, color:k==='FX'?'#465650':COLORS[k]}; });
+  const cuL = landed('CU',base).value, cuS = landed('CU',scen).value;
+  el.innerHTML = `
+  <div class="page-head"><div class="t"><h1>Simulation</h1><p>Move commodity prices and see what every quote would become. Baseline is ${esc(basisLabel())}. Nothing here changes saved quotes until you save a new version.</p></div>
+    <div class="row-x"><button class="btn" data-act="sim-reset">Reset to baseline</button><button class="btn primary" data-act="sim-save">Save scenario</button></div></div>
+  <div class="row-x" style="margin-bottom:14px"><span class="small sub">Presets</span>
+    <button class="btn sm" data-act="sim-preset" data-p="meeting">Copper to ₹1,700/kg landed</button>
+    <button class="btn sm" data-act="sim-preset" data-p="rupee">Rupee weakens 3%</button>
+    <button class="btn sm" data-act="sim-preset" data-p="soft">Metals soften 8%</button>
+    <button class="btn sm" data-act="sim-preset" data-p="duty">Compressor CIF +10%</button></div>
+  <div class="grid g-main">
+    <div class="grid" style="align-content:start">
+      <div class="panel"><div class="panel-h"><h3>Rate changes</h3><span class="small muted">Copper landed ${fmt.inr(cuL)}/kg → <b class="${cuS>cuL?'diff-up':cuS<cuL?'diff-dn':''}">${fmt.inr(cuS)}/kg</b></span></div><div class="panel-b">
+        ${SIM_KEYS.map(([k,l])=>{ const c=COMMODITIES.find(q=>q.code===k); return `<div class="sl"><span><span class="mat"><i style="background:${k==='FX'?'#465650':COLORS[k]}"></i>${l}</span><div class="small muted num">${fmt.n(base[k],base[k]<200?2:0)} → ${fmt.n(scen[k],scen[k]<200?2:0)} ${c.unit}</div></span>
+          <input type="range" min="-30" max="30" step="0.5" value="${S.pct[k]}" data-sim="${k}" aria-label="${l} change percent"><span class="val num">${S.pct[k]>0?'+':''}${S.pct[k].toFixed(1)}%</span></div>`; }).join('')}
+      </div></div>
+      <div class="panel"><div class="panel-h"><h3>Effect on quotes</h3><span class="small muted">Per set, IDU + ODU</span></div><div class="panel-b">
+        <table class="tbl"><thead><tr><th></th><th>Model</th><th class="r">Baseline</th><th class="r">Scenario</th><th class="r">Change</th></tr></thead><tbody>
+        ${MODELS.map(m=>{ const on=S.models.includes(m.id), row=rows.find(r=>r.m.id===m.id); return `<tr><td><input type="checkbox" data-act="noop" data-simm="${m.id}" ${on?'checked':''} aria-label="Include ${esc(m.name)}"></td><td>${brandDot(m.brand)} <span class="small muted">${m.tr} TR ${m.star}★</span> ${S.focus===m.id?'<span class="chip dark">In chart</span>':on?`<button class="btn sm ghost" data-act="sim-focus" data-m="${m.id}">Chart this</button>`:''}</td>
+          ${row?`<td class="r num">${fmt.inr(row.b)}</td><td class="r num"><b>${fmt.inr(row.s)}</b></td><td class="r num ${row.d>0.5?'diff-up':row.d<-0.5?'diff-dn':''}">${row.d>=0?'+':'−'}${fmt.inr(Math.abs(row.d))} <span class="small">(${fmt.pct(row.d/row.b)})</span></td>`:'<td colspan="3" class="r small muted">Not in scenario</td>'}</tr>`; }).join('')}
+        </tbody></table>
+        <div class="note" style="margin-top:10px">Annual impact at the volumes in the demo forecast (${fmt.n(25000)} sets per model): <b class="num ${rows.reduce((a,b)=>a+b.d,0)>0?'diff-up':'diff-dn'}">${fmt.k(rows.reduce((a,b)=>a+b.d,0)*25000)}</b> across ${rows.length} models.</div>
+      </div></div>
+    </div>
+    <div class="grid" style="align-content:start">
+      <div class="panel"><div class="panel-h"><h3>Where the change comes from</h3></div><div class="panel-b"><p class="small sub" style="margin-top:0">${esc(fm.name)}: each commodity's change on its own, per set.</p>${divBars(impact,{w:520})}</div></div>
+      <div class="panel"><div class="panel-h"><h3>Saved scenarios</h3></div><div class="panel-b">${DB.scenarios.length?`<table class="tbl"><tbody>${DB.scenarios.map(s=>`<tr class="click" data-act="sim-load" data-id="${s.id}"><td><b>${esc(s.name)}</b><div class="small muted">${s.on}, ${esc(person(s.by).name)}</div></td><td class="r small">${Object.entries(s.pct).filter(([,v])=>v).map(([k,v])=>k+' '+(v>0?'+':'')+v+'%').join(', ')||'No change'}</td></tr>`).join('')}</tbody></table>`:'<div class="empty">No saved scenarios yet. Move a slider, then save.</div>'}</div></div>
+    </div>
+  </div>`;
+  $$('input[data-sim]').forEach(i=>i.addEventListener('input',()=>{ APP.sim.pct[i.dataset.sim]=parseFloat(i.value); clearTimeout(APP.simT); APP.simT=setTimeout(simRender,60); }));
+  $$('input[data-simm]').forEach(i=>i.addEventListener('change',()=>{ const id=i.dataset.simm; S.models = i.checked ? [...S.models,id] : S.models.filter(x=>x!==id); if(!S.models.length){ S.models=[id]; toast('Keep at least one model in the scenario', true); } if(!S.models.includes(S.focus)) S.focus=S.models[0]; simRender(); }));
+}
+ACT['sim-reset'] = ()=>{ Object.keys(APP.sim.pct).forEach(k=>APP.sim.pct[k]=0); simRender(); };
+ACT['sim-focus'] = el=>{ APP.sim.focus=el.dataset.m; simRender(); };
+ACT['sim-preset'] = el=>{ const p=el.dataset.p, S=APP.sim, base=snapNow(); Object.keys(S.pct).forEach(k=>S.pct[k]=0);
+  if(p==='meeting'){ const c=COMMODITIES.find(q=>q.code==='CU'); const fx=base.FX; const target=(1700-c.conv)/(fx/1000*(1+c.premium)); const startIdx=(1400-c.conv)/(fx/1000*(1+c.premium)); S.pct.CU=Math.round(((target/base.CU)-1)*200)/2; S.name='Copper ₹1,700/kg'; toast('Copper set to about ₹1,700/kg landed, the case raised in the meeting'); }
+  if(p==='rupee'){ S.pct.FX=3; S.name='Rupee weakens 3%'; } if(p==='soft'){ S.pct.CU=-8; S.pct.AL=-8; S.pct.ST=-8; S.name='Metals soften 8%'; } if(p==='duty'){ S.pct.CP=10; S.name='Compressor CIF +10%'; }
+  simRender(); };
+ACT['sim-save'] = async el=>{ el.disabled=true; el.innerHTML='<span class="sp"></span>Saving'; const sc = await api.saveScenario({name:APP.sim.name||'Scenario', pct:{...APP.sim.pct}, models:APP.sim.models.slice()}, APP.user.id); toast('Saved scenario '+sc.id); simRender(); };
+ACT['sim-load'] = el=>{ const s=DB.scenarios.find(x=>x.id===el.dataset.id); APP.sim.pct={...s.pct}; APP.sim.models=s.models.slice(); APP.sim.name=s.name; simRender(); toast('Loaded '+s.name); };
+
+/* ---------- SAP BOM explorer ---------- */
+function viewBom(el){
+  const b = APP.bom || {code:MODELS[0].code, state:'idle', basis:'lpp'};
+  APP.bom = b;
+  const m = MODELS.find(x=>x.code===b.code);
+  let body='';
+  if(b.state==='idle') body = `<div class="lock-note"><div class="ic">⇅</div><div><b>Enter a model code and fetch its BOM from SAP.</b><div class="small">The BOM stays in SAP where the model is developed. This pulls the breakup, latest purchase prices and commodity weights.</div></div></div>`;
+  else if(b.state==='loading') body = `<div class="panel"><div class="panel-b"><b>Fetching ${esc(b.code)} from SAP S/4HANA</b><ul class="sap-steps" id="sapSteps">${['Connecting to SAP (plant 1100)','Reading material BOM, IDU + ODU','Exploding multi-level BOM','Fetching last purchase prices','Mapping parts to commodities'].map((s,i)=>`<li class="${i<b.step?'ok':i===b.step?'run':''}"><span class="k">${i<b.step?'✓':''}</span>${s}</li>`).join('')}</ul></div></div>`;
+  else {
+    const snap=snapNow(), cL=compute(m,snap,{priceMode:'lpp'}), cA=compute(m,snap,{priceMode:'avg'}), w=cL.weights;
+    const bo = cL.lines.filter(l=>l.type==='bo');
+    body = `<div class="grid g4" style="margin-bottom:16px">
+      <div class="panel kpi"><div class="l">BOM lines</div><div class="v num">${cL.lines.length+cL.exLines.length}</div><div class="f">${cL.lines.length} chassis, ${cL.exLines.length} exclusive</div></div>
+      <div class="panel kpi"><div class="l">Copper in this model</div><div class="v num">${fmt.n(w.CU,2)} kg</div><div class="f">Across coil, stubs and tubing</div></div>
+      <div class="panel kpi"><div class="l">Material at SAP average</div><div class="v num">${fmt.inr(cA.material)}</div><div class="f">What the BOM shows</div></div>
+      <div class="panel kpi"><div class="l">Material at LPP</div><div class="v num">${fmt.inr(cL.material)}</div><div class="f ${cL.material>cA.material?'diff-up':'diff-dn'}">${cL.material>cA.material?'+':'−'}${fmt.inr(Math.abs(cL.material-cA.material))} vs average</div></div></div>
+    <div class="grid g-main"><div class="panel"><div class="panel-h"><h3>BOM breakup</h3><span class="small muted">${esc(m.code)}, plant 1100</span></div><div class="panel-b"><table class="tbl"><thead><tr><th>Part</th><th>Unit</th><th>Commodity</th><th class="r">Qty / weight</th><th class="r">SAP moving avg</th><th class="r">LPP</th><th class="r">Gap</th></tr></thead><tbody>
+      ${cL.lines.map(l=>{ const gap = l.type==='bo' ? l.lpp-l.avg : 0; return `<tr><td><b>${esc(l.name)}</b><div class="small muted">${l.pc}</div></td><td><span class="chip">${l.unit}</span></td><td><span class="mat"><i style="background:${l.type==='bo'?'#9AA8A1':matColor(l.type==='cp'?'CP':l.m)}"></i>${l.type==='bo'?'Bought-out':MAT_NAME[l.type==='cp'?'CP':l.m]}</span></td><td class="r num">${l.type==='mat'?fmt.n(l.kg,2)+' kg':'1 no'}</td><td class="r num">${l.type==='bo'?fmt.inr(l.avg):'<span class="muted small">Rate linked</span>'}</td><td class="r num">${l.type==='bo'?fmt.inr(l.lpp):'<span class="muted small">Rate linked</span>'}</td><td class="r num ${gap>0?'diff-up':gap<0?'diff-dn':''}">${l.type==='bo'?(gap>=0?'+':'−')+fmt.inr(Math.abs(gap)):''}</td></tr>`; }).join('')}
+      </tbody></table></div></div>
+      <div class="grid" style="align-content:start"><div class="panel"><div class="panel-h"><h3>Critical material roll-up</h3></div><div class="panel-b" style="display:flex;gap:14px;align-items:center;flex-wrap:wrap">${donut(['CU','AL','ST','PL','RF'].map(k=>({label:MAT_NAME[k], value:w[k], color:COLORS[k]})),{size:160,unit:'kg',center:fmt.n(Object.values(w).reduce((a,b)=>a+b,0),1)+' kg',centerSub:'per set',label:'Material roll-up'})}<div style="flex:1;min-width:130px">${['CU','AL','ST','PL','RF'].map(k=>`<div class="row-x small" style="padding:3px 0"><span class="mat"><i style="background:${COLORS[k]}"></i>${MAT_NAME[k]}</span><span class="spacer"></span><b class="num">${fmt.n(w[k],2)} kg</b></div>`).join('')}</div></div></div>
+      <div class="panel"><div class="panel-h"><h3>Why LPP, not the BOM price</h3></div><div class="panel-b small sub">SAP values the BOM at a moving average: a compressor bought at ₹3,000 last year and ₹5,000 now shows somewhere in between. Quotes for next quarter need today's price, so each part code is looked up in the LPP report. ${bo.filter(l=>l.lpp>l.avg).length} of ${bo.length} bought-outs are dearer at LPP.</div></div></div></div>`;
+  }
+  el.innerHTML = `<div class="page-head"><div class="t"><h1>SAP BOM explorer</h1><p>Type a model code to pull its BOM from SAP: no digging through hundreds of lines. Weights roll up by commodity and every part is priced at its latest purchase price.</p></div></div>
+  <div class="panel" style="margin-bottom:16px"><div class="panel-b row-x"><div class="field" style="flex:1;max-width:420px"><label for="bomCode">Model code</label><input class="inp" id="bomCode" list="bomCodes" value="${esc(b.code)}"><datalist id="bomCodes">${MODELS.map(m=>`<option value="${m.code}">${esc(m.name)}</option>`).join('')}</datalist></div><button class="btn primary" data-act="bom-fetch" style="align-self:flex-end" ${b.state==='loading'?'disabled':''}>Fetch from SAP</button><span class="small muted" style="align-self:flex-end">Try ${MODELS.slice(1,4).map(m=>`<a href="#" data-act="bom-try" data-c="${m.code}">${m.code}</a>`).join(', ')}</span></div></div>
+  ${body}`;
+}
+ACT['bom-try'] = el=>{ $('#bomCode').value=el.dataset.c; ACT['bom-fetch'](); };
+ACT['bom-fetch'] = async ()=>{
+  const code=$('#bomCode').value.trim().toUpperCase(); const m=MODELS.find(x=>x.code===code);
+  if(!m){ toast('No BOM for '+(code||'that code')+' in SAP. Check the model code.', true); return; }
+  APP.bom={code, state:'loading', step:0}; viewBom($('#view'));
+  for(let i=0;i<5;i++){ APP.bom.step=i; viewBom($('#view')); if(i===1) await api.sapBom(code); else if(i===3) await api.sapLpp(code); else await new Promise(r=>setTimeout(r,380)); }
+  APP.bom.state='done'; viewBom($('#view')); toast('BOM for '+code+' loaded from SAP');
+};
+
+/* ---------- quote history ---------- */
+function viewHistory(el, r){
+  const H=APP.hist; if(r.id && !H.sel.includes(r.id)) H.sel=[r.id];
+  const q=H.q.toLowerCase();
+  const list = DB.versions.slice().sort((a,b)=>b.on.localeCompare(a.on)).filter(v=>{ const m=model(v.model); return !q || (m.name+' '+m.code+' '+v.quarter+' '+v.req+' '+v.on).toLowerCase().includes(q); });
+  const sel = H.sel.map(id=>DB.versions.find(v=>v.id===id)).filter(Boolean);
+  let diff='';
+  if(sel.length===2){
+    const [a,b] = sel.sort((x,y)=>x.on.localeCompare(y.on)); const m=model(b.model);
+    const same = a.model===b.model;
+    const mid = same ? compute(m, b.snap, {excl:a.excl}).total : null;
+    const rateEff = same ? mid-a.total : null, scopeEff = same ? b.total-mid : null;
+    const added=b.excl.filter(k=>!a.excl.includes(k)), removed=a.excl.filter(k=>!b.excl.includes(k));
+    diff = `<div class="panel"><div class="panel-h"><h3>Compare v${a.v} (${a.quarter}) with v${b.v} (${b.quarter})</h3></div><div class="panel-b">
+      ${!same?'<div class="note">These versions are for different models. Totals and rates are compared; the change is not split into causes.</div>':''}
+      <div class="grid g3" style="margin:6px 0 14px"><div><div class="small sub">${a.quarter}</div><div class="kpi" style="padding:0"><div class="v num">${fmt.inr(a.total)}</div></div></div><div><div class="small sub">${b.quarter}</div><div class="kpi" style="padding:0"><div class="v num">${fmt.inr(b.total)}</div></div></div><div><div class="small sub">Change</div><div class="kpi" style="padding:0"><div class="v num ${b.total>a.total?'diff-up':'diff-dn'}">${b.total>a.total?'+':'−'}${fmt.inr(Math.abs(b.total-a.total))}</div></div></div></div>
+      ${same?`<div class="formula"><div class="row-x"><span>Commodity rates moved</span><span class="spacer"></span><b class="num ${rateEff>0?'diff-up':'diff-dn'}">${rateEff>=0?'+':'−'}${fmt.inr(Math.abs(rateEff))}</b></div><div class="row-x"><span>Scope changed (exclusive parts)</span><span class="spacer"></span><b class="num ${scopeEff>0?'diff-up':scopeEff<0?'diff-dn':''}">${scopeEff>=0?'+':'−'}${fmt.inr(Math.abs(scopeEff))}</b></div></div>`:''}
+      <table class="tbl" style="margin-top:12px"><thead><tr><th>Rate</th><th class="r">v${a.v}</th><th class="r">v${b.v}</th><th class="r">Change</th></tr></thead><tbody>
+      ${SIM_KEYS.map(([k,l])=>{ const d=(b.snap[k]-a.snap[k])/a.snap[k]; return `<tr><td><span class="mat"><i style="background:${k==='FX'?'#465650':COLORS[k]}"></i>${l}</span></td><td class="r num">${fmt.n(a.snap[k],a.snap[k]<200?2:0)}</td><td class="r num">${fmt.n(b.snap[k],b.snap[k]<200?2:0)}</td><td class="r num ${d>0.0005?'diff-up':d<-0.0005?'diff-dn':''}">${fmt.pct(d)}</td></tr>`; }).join('')}
+      </tbody></table>
+      ${added.length||removed.length?`<div class="row-x" style="margin-top:10px">${added.map(k=>`<span class="chip ${EXCLUSIVES[k].sign>0?'up':'down'}">Added: ${esc(EXCLUSIVES[k].name)}</span>`).join('')}${removed.map(k=>`<span class="chip ${EXCLUSIVES[k].sign>0?'down':'up'}">Removed: ${esc(EXCLUSIVES[k].name)}</span>`).join('')}</div>`:''}
+    </div></div>`;
+  } else if(sel.length===1){
+    const v=sel[0], m=model(v.model);
+    diff = `<div class="panel"><div class="panel-h"><h3>${esc(m.brand)} ${m.code}, v${v.v}</h3><span class="chip ${v.status==='SENT'?'dark':'warn'}">${v.status==='SENT'?'Sent':'Draft'}</span></div><div class="panel-b">
+      <div class="kpi" style="padding:0 0 10px"><div class="v num">${fmt.inr(v.total)}</div><div class="f">per set, ${v.quarter}</div></div>
+      <table class="tbl"><tbody><tr><td class="muted">Request</td><td>${v.req}</td></tr><tr><td class="muted">Costed by</td><td>${esc(person(v.by).name)} on ${v.on}</td></tr><tr><td class="muted">Rate source</td><td>${v.source}, basis ${v.basis.replace('-',' ')}</td></tr><tr><td class="muted">Copper used</td><td class="num">${fmt.n(v.snap.CU,2)} USD/MT</td></tr><tr><td class="muted">Sent to</td><td>${v.status==='SENT'?esc(v.sentTo):'Not sent yet'}</td></tr>${v.note?`<tr><td class="muted">Note</td><td>${esc(v.note)}</td></tr>`:''}</tbody></table>
+      <div class="row-x" style="margin-top:12px"><span class="small muted">Pick a second version to compare.</span><span class="spacer"></span><button class="btn primary" data-act="go" data-to="customer/${v.id}">Customer sheet</button></div></div></div>`;
+  } else diff = `<div class="lock-note"><div class="ic">⇆</div><div><b>Pick a version to see exactly what was quoted.</b><div class="small">Pick two to compare: the change is split into commodity movement and scope change.</div></div></div>`;
+  el.innerHTML = `<div class="page-head"><div class="t"><h1>Quote history</h1><p>Every costing ever sent, with the rates and parts it used. Answer "what did we give whom, and why" two years later.</p></div></div>
+  <div class="grid g-main"><div class="panel"><div class="panel-b">
+    <input class="inp" id="histQ" placeholder="Search: Voltas, Q2 2025, REQ-2603…" value="${esc(H.q)}" style="margin-bottom:10px" aria-label="Search quote history">
+    <table class="tbl"><thead><tr><th></th><th>Model</th><th>Version</th><th>Quarter</th><th>Source</th><th class="r">Quote / set</th></tr></thead><tbody>
+    ${list.map(v=>{ const m=model(v.model); return `<tr class="click" data-act="hist-pick" data-id="${v.id}" style="${H.sel.includes(v.id)?'background:var(--mint-wash)':''}"><td><input type="checkbox" ${H.sel.includes(v.id)?'checked':''} tabindex="-1" aria-label="Select"></td><td>${brandDot(m.brand)} <span class="small muted">${m.code}</span></td><td>v${v.v} ${v.status==='DRAFT'?'<span class="chip warn">Draft</span>':''}</td><td class="small">${v.quarter}<div class="muted">${v.on}</div></td><td><span class="chip ${v.source==='AICM'?'mint':''}">${v.source}</span></td><td class="r num"><b>${fmt.inr(v.total)}</b></td></tr>`; }).join('')||'<tr><td colspan="6" class="empty">No quotes match. Try a brand, quarter or request ID.</td></tr>'}
+    </tbody></table></div></div>
+    <div>${diff}</div></div>`;
+  const inp=$('#histQ'); inp.addEventListener('input',()=>{ APP.hist.q=inp.value; const pos=inp.selectionStart; viewHistory(el,{}); const n=$('#histQ'); n.focus(); n.setSelectionRange(pos,pos); });
+}
+ACT['hist-pick'] = el=>{ const H=APP.hist, id=el.dataset.id; if(H.sel.includes(id)) H.sel=H.sel.filter(x=>x!==id); else { H.sel.push(id); if(H.sel.length>2) H.sel.shift(); } if(location.hash.startsWith('#/history/')) history.replaceState(null,'','#/history'); viewHistory($('#view'),{}); };
+
+/* ---------- customer sheet & send ---------- */
+function viewCustomer(el, r){
+  const v=DB.versions.find(x=>x.id===r.id); if(!v){ el.innerHTML='<div class="empty">Version not found.</div>'; return; }
+  const m=model(v.model), req=reqById(v.req), spec = req?req.spec:specFor(m), all=specRows(true);
+  const custRows=all.filter(x=>!x.internal);
+  const view = APP.custView||'customer';
+  const rows = view==='customer'?custRows:all;
+  el.innerHTML = `<div class="page-head"><div class="t"><div class="crumbs"><a href="#/history">Quote history</a> / ${m.code} v${v.v}</div><h1>Customer sheet: ${esc(m.name)}</h1><p>Derived automatically from the internal costing sheet. The same ${all.length-custRows.length} internal rows are always removed, so the customer sheet never needs to be built by hand.</p></div>
+    <div class="row-x"><div class="seg"><button class="${view==='customer'?'on':''}" data-act="cust-view" data-v="customer">Customer view, ${custRows.length} rows</button><button class="${view==='internal'?'on':''}" data-act="cust-view" data-v="internal">Internal view, ${all.length} rows</button></div></div></div>
+  <div class="grid g-main"><div class="panel"><div class="panel-h"><h3>${esc(m.brand)} ${m.code}, quotation v${v.v}</h3><span class="chip">${v.quarter}</span></div><div class="panel-b">
+    <div class="row-x" style="padding:10px 12px;background:var(--paper-2);border-radius:8px;margin-bottom:8px"><div><div class="small sub">Price per set, IDU + ODU, ex-works</div><div style="font-family:var(--display);font-size:26px;font-weight:600" class="num">${fmt.inr(v.total)}</div></div><span class="spacer"></span><div class="small sub" style="text-align:right">Valid for ${v.quarter}<br>Prices linked to commodity indices</div></div>
+    ${rows.map((rw,i)=>`<div class="spec-row ${rw.internal?'internal':''}" style="grid-template-columns:34px 1fr 1.2fr ${view==='internal'?'110px':''}"><span class="no num">${i+1}</span><span>${esc(rw.label)}</span><span><b style="font-weight:500">${esc(spec[rw.k]||'—')}</b></span>${view==='internal'?`<span class="x small ${rw.internal?'':'muted'}">${rw.internal?'Removed for customer':'Sent'}</span>`:''}</div>`).join('')}
+  </div></div>
+  <div class="grid" style="align-content:start">${can('costing')?`<div class="mail"><div class="mh"><span>From</span><b>costing@ambergroupindia.com</b><span>To</span><input class="inp" id="mailTo" value="${esc(v.sentTo)}" aria-label="Recipient"><span>Subject</span><b>${esc(m.brand)} ${m.code}: quotation v${v.v} for ${v.quarter}</b></div>
+    <div class="mb">Dear ${esc(m.brand)} sourcing team,
+
+Please find attached our quotation for ${esc(m.name)} (${m.code}), valid for ${v.quarter}.
+
+Price per set (IDU + ODU): ${fmt.inr(v.total)}, ex-works, linked to the ${v.basis==='Manual'?'agreed':'previous quarter\'s average'} copper, aluminium and USD/INR rates.
+
+Regards,
+${esc(APP.user.name)}
+Costing, Amber Enterprises</div>
+    <span class="attach">📄 ${m.code}_Quotation_v${v.v}.pdf <span class="muted">${custRows.length} rows, generated</span></span>
+    <div style="padding:0 16px 16px" class="row-x">${v.status==='SENT'?`<span class="chip dark"><span class="d"></span>Sent to ${esc(v.sentTo)}</span><span class="spacer"></span><button class="btn" data-act="mail-send" data-id="${v.id}">Send again</button>`:`<span class="small muted">Sent from the system and logged against ${v.req}.</span><span class="spacer"></span><button class="btn primary" data-act="mail-send" data-id="${v.id}">Send to customer</button>`}</div></div>`:`<div class="note">Only the costing team can send quotations.</div>`}
+    <div class="panel"><div class="panel-h"><h3>Removed for the customer</h3><span class="chip warn">${all.length-custRows.length} rows</span></div><div class="panel-b small">${all.filter(x=>x.internal).map(x=>esc(x.label)).join(', ')}</div></div>
+  </div></div>`;
+}
+ACT['cust-view'] = el=>{ APP.custView=el.dataset.v; render(); };
+ACT['mail-send'] = async el=>{ const to=$('#mailTo').value.trim(); if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(to)){ toast('Enter a valid customer email address', true); $('#mailTo').focus(); return; } el.disabled=true; el.innerHTML='<span class="sp"></span>Sending'; await api.sendMail(el.dataset.id, to, APP.user.id); toast('Quotation sent to '+to+' and logged'); renderShell(); render(); };
+
+/* ---------- library ---------- */
+function viewLibrary(el, r){
+  const L=APP.lib; if(r.id) L.sel=r.id; const q=L.q.toLowerCase();
+  const showCost = can('costing');
+  const ms = MODELS.filter(m=>!q || (m.name+' '+m.code+' '+m.idu+' '+m.odu).toLowerCase().includes(q));
+  const tree = BRANDS.filter(b=>ms.some(m=>m.brand===b)).map(b=>{ const bm=ms.filter(m=>m.brand===b); return `<details open><summary><b>${esc(b)}</b><span class="ct">${bm.length} model${bm.length>1?'s':''}</span></summary>
+    ${[...new Set(bm.map(m=>m.series))].map(s=>`<details open><summary>${esc(s)}</summary>${bm.filter(m=>m.series===s).map(m=>`<div class="leaf" data-act="lib-sel" data-id="${m.id}" style="${L.sel===m.id?'background:var(--mint-wash)':''}"><span class="chip">${m.idu} + ${m.odu}</span>${esc(m.code)}<span class="ct">${m.tr} TR</span></div>`).join('')}</details>`).join('')}</details>`; }).join('');
+  let card='<div class="lock-note"><div class="ic">▤</div><div><b>Pick a model to see its spec, chassis and quote history.</b><div class="small">Organised by customer, then series, then model. Every record lives in one place.</div></div></div>';
+  if(L.sel){ const m=model(L.sel), vs=DB.versions.filter(v=>v.model===m.id).sort((a,b)=>a.v-b.v), rq=DB.requests.filter(x=>x.model===m.id);
+    card = `<div class="panel"><div class="panel-h"><h3>${esc(m.name)}</h3><span class="chip">${m.code}</span></div><div class="panel-b">
+      <table class="tbl"><tbody><tr><td class="muted">Customer</td><td>${brandDot(m.brand)}</td></tr><tr><td class="muted">Path</td><td class="small">${esc(m.brand)} / ${esc(m.series)} / ${m.idu} + ${m.odu} / ${m.code}</td></tr><tr><td class="muted">Chassis</td><td>${IDU_CHASSIS[m.idu].label}<br>${ODU_CHASSIS[m.odu].label}</td></tr><tr><td class="muted">Rating</td><td>${m.tr} TR, ${m.star}-star, ISEER ${m.iseer}</td></tr><tr><td class="muted">Exclusive parts</td><td class="small">${m.excl.map(k=>esc(EXCLUSIVES[k].name)).join(', ')}</td></tr></tbody></table>
+      ${showCost&&vs.length?`<h3 style="margin:16px 0 6px">Quote trend</h3>${lineChart([{name:'Quote per set', values:vs.map(v=>v.total), color:'#0E2E25'}], vs.map(v=>'v'+v.v+' '+v.quarter.replace(' 20',' \'')), {h:170,label:'Quote trend'})}`:''}
+      ${!showCost?'<div class="note" style="margin-top:12px">Prices are visible to the costing team only.</div>':''}
+      <h3 style="margin:16px 0 6px">Requests</h3>${rq.length?rq.map(x=>`<div class="row-x" style="padding:5px 0"><a href="#/requests/${x.id}">${x.id}</a>${stPill(x.status)}<span class="spacer"></span><span class="small muted">${x.received}</span></div>`).join(''):'<div class="small muted">No open requests.</div>'}
+    </div></div>`; }
+  el.innerHTML = `<div class="page-head"><div class="t"><h1>Library</h1><p>All ${MODELS.length} models across ${BRANDS.length} customers, filed by customer, series and chassis so anything can be found by name.</p></div></div>
+  <div class="grid g2" style="grid-template-columns:minmax(280px,.8fr) 1.2fr"><div class="panel"><div class="panel-b"><input class="inp" id="libQ" placeholder="Search models, codes, chassis" value="${esc(L.q)}" style="margin-bottom:10px" aria-label="Search library"><div class="tree">${tree||'<div class="empty">No models match.</div>'}</div></div></div><div>${card}</div></div>`;
+  const inp=$('#libQ'); inp.addEventListener('input',()=>{ APP.lib.q=inp.value; const p=inp.selectionStart; viewLibrary(el,{}); const n=$('#libQ'); n.focus(); n.setSelectionRange(p,p); });
+}
+ACT['lib-sel'] = el=>{ APP.lib.sel=el.dataset.id; viewLibrary($('#view'),{}); };
+
+/* ---------- admin ---------- */
+async function viewAdmin(el, r, token){
+  el.innerHTML = loader('Loading users and audit trail');
+  const log = await api.audit(); if(stale(token)) return;
+  const mods = MODULES.filter(m=>m.id!=='home');
+  el.innerHTML = `<div class="page-head"><div class="t"><h1>Admin</h1><p>Who can see what. Costing data is confidential, so access is role-based and every change is logged.</p></div><button class="btn danger" data-act="reset">Reset demo data</button></div>
+  <div class="grid g2">
+    <div class="panel"><div class="panel-h"><h3>Users</h3><span class="chip">${Object.keys(PEOPLE).length}</span></div><div class="panel-b"><table class="tbl"><tbody>${Object.values(PEOPLE).map(p=>`<tr><td>${av(p.id,28)}</td><td><b>${esc(p.name)}</b><div class="small muted">${esc(p.title)}</div></td><td><span class="chip">${ROLES[p.role].label}</span></td><td class="r small muted">Password + SSO</td></tr>`).join('')}</tbody></table></div></div>
+    <div class="panel"><div class="panel-h"><h3>Permissions by role</h3></div><div class="panel-b" style="overflow-x:auto"><table class="tbl"><thead><tr><th>Module</th>${Object.values(ROLES).map(r=>`<th style="text-align:center">${r.label}</th>`).join('')}</tr></thead><tbody>${mods.map(m=>`<tr><td>${m.label}</td>${Object.keys(ROLES).map(k=>`<td style="text-align:center">${ROLES[k].modules.includes(m.id)?'<span style="color:var(--down);font-weight:700">✓</span>':'<span class="muted">—</span>'}</td>`).join('')}</tr>`).join('')}
+      <tr><td>Edit spec sheet</td>${Object.keys(ROLES).map(k=>`<td style="text-align:center">${k==='rnd'?'<span style="color:var(--down);font-weight:700">✓</span>':'<span class="muted">—</span>'}</td>`).join('')}</tr>
+      <tr><td>Approve spec</td>${Object.keys(ROLES).map(k=>`<td style="text-align:center">${k==='lead'?'<span style="color:var(--down);font-weight:700">✓</span>':'<span class="muted">—</span>'}</td>`).join('')}</tr></tbody></table></div></div>
+  </div>
+  <div class="panel" style="margin-top:16px"><div class="panel-h"><h3>Audit trail</h3><span class="chip">${log.length} events</span></div><div class="panel-b"><table class="tbl"><thead><tr><th>When</th><th>Who</th><th>Action</th><th>Record</th></tr></thead><tbody>${log.map(a=>`<tr><td class="small num">${a.t}</td><td>${av(a.who,22)} ${esc(person(a.who).name)}</td><td>${esc(a.a)}</td><td class="small">${esc(a.obj)}</td></tr>`).join('')}</tbody></table></div></div>`;
+}
+
+/* ---------- boot ---------- */
+loadDB();
+render();
+
+</script></body></html>
