@@ -1,0 +1,60 @@
+- generic [ref=e2]:
+  - generic [ref=e3]:
+    - generic [ref=e4]:
+      - generic [ref=e8]:
+        - generic [ref=e9]: ChassisIQ
+        - generic [ref=e10]: Cost & specification studio, prepared for Amber Enterprises
+      - generic [ref=e11]:
+        - heading "Every quote, traceable to the gram." [level=1] [ref=e12]
+        - paragraph [ref=e13]: From a brand's spec request to a priced, versioned customer sheet. Chassis base cost plus exclusive parts, re-priced live as copper, aluminium and the rupee move.
+      - generic [ref=e14]:
+        - generic [ref=e15]:
+          - generic [ref=e16]: "7"
+          - text: models in the demo
+        - generic [ref=e17]:
+          - generic [ref=e18]: "11"
+          - text: quote versions since 2025
+        - generic [ref=e19]:
+          - generic [ref=e20]: 14,110
+          - text: LME copper, USD/MT
+    - main [ref=e21]:
+      - heading "Sign in as" [level=2] [ref=e22]
+      - paragraph [ref=e23]: Each person sees only what their role allows. You can switch user at any time from the top bar.
+      - button "Rahul Bansal Rahul Bansal Key Account Manager Logs customer requests, sees customer-facing sheets only" [ref=e24] [cursor=pointer]:
+        - img "Rahul Bansal" [ref=e25]: RB
+        - generic [ref=e26]:
+          - text: Rahul Bansal Key Account Manager
+          - generic [ref=e27]: Logs customer requests, sees customer-facing sheets only
+        - generic [aria-hidden] [ref=e28]: ›
+      - button "Navdeep Navdeep Team Lead, R&D Allocates requests to R&D, approves or returns specs" [ref=e29] [cursor=pointer]:
+        - img "Navdeep" [ref=e30]: "N"
+        - generic [ref=e31]:
+          - text: Navdeep Team Lead, R&D
+          - generic [ref=e32]: Allocates requests to R&D, approves or returns specs
+        - generic [aria-hidden] [ref=e33]: ›
+      - button "Ritika Sharma Ritika Sharma R&D Engineer Fills the model spec sheet; no access to costing" [ref=e34] [cursor=pointer]:
+        - img "Ritika Sharma" [ref=e35]: RS
+        - generic [ref=e36]:
+          - text: Ritika Sharma R&D Engineer
+          - generic [ref=e37]: Fills the model spec sheet; no access to costing
+        - generic [aria-hidden] [ref=e38]: ›
+      - button "Vivek Arora Vivek Arora Costing Manager Full costing, commodities, simulation, quotes and sending" [ref=e39] [cursor=pointer]:
+        - img "Vivek Arora" [ref=e40]: VA
+        - generic [ref=e41]:
+          - text: Vivek Arora Costing Manager
+          - generic [ref=e42]: Full costing, commodities, simulation, quotes and sending
+        - generic [aria-hidden] [ref=e43]: ›
+      - button "IT Admin IT Admin System administrator Users, roles, permissions and audit trail" [ref=e44] [cursor=pointer]:
+        - img "IT Admin" [ref=e45]: IA
+        - generic [ref=e46]:
+          - text: IT Admin System administrator
+          - generic [ref=e47]: Users, roles, permissions and audit trail
+        - generic [aria-hidden] [ref=e48]: ›
+      - generic [ref=e49]:
+        - generic [ref=e50]: Also sign in as
+        - button "Mahendra, Team Lead" [ref=e51] [cursor=pointer]
+        - button "Arjun Mehta, R&D Engineer" [ref=e52] [cursor=pointer]
+        - button "Sana Qureshi, R&D Engineer" [ref=e53] [cursor=pointer]
+        - button "Pooja Nair, Costing" [ref=e54] [cursor=pointer]
+      - paragraph [ref=e55]: Demo build. Commodity rates mirror AICM on 06 Nov 2026; chassis BOMs, prices and quotes are illustrative until Amber shares real data.
+  - status

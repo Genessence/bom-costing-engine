@@ -29,7 +29,9 @@ function Master() {
   const [busy, setBusy] = useState<'sync' | 'save' | null>(null);
   const [upload, setUpload] = useState(false);
   const [edits, setEdits] = useState<Record<string, string>>({});
-  useEffect(() => { setEdits({}); }, [manual]);
+  // Reset typed edits only when the saved rates actually change (not on every refetch).
+  const manualKey = JSON.stringify(manual);
+  useEffect(() => { setEdits({}); }, [manualKey]);
 
   const aicm = mode === 'aicm';
   const sel = COMMODITIES.find((c) => c.code === selCode)!;

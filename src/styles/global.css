@@ -331,3 +331,8 @@ h3{font-size:16px}
 @media (max-width:1100px){.grid.lib-grid{grid-template-columns:1fr}}
 /* buttons used where the POC had clickable divs */
 button.upload{width:100%;font:inherit}
+/* small screens: let collapsed grid tracks shrink below their tables' min-content, and scroll wide tables
+   inside their panel instead of the page (the POC overflowed horizontally at 390px) */
+@media (max-width:1100px){.grid.g2,.grid.g3,.grid.g4,.grid.g-main{grid-template-columns:minmax(0,1fr)}}
+.panel,.grid>*{min-width:0}
+@media (max-width:860px){.panel-b{overflow-x:auto}.sl{grid-template-columns:110px minmax(0,1fr) 64px;gap:8px}.cost-hero .big{font-size:44px}}
