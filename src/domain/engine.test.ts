@@ -36,7 +36,7 @@ describe('landed cost (HANDOFF seed check values)', () => {
     const L = landed('CP', aicm);
     expect(L.value).toBeCloseTo(cif + bcd + aidc + sws + clr, 6);
     expect(L.unit).toBe('₹/unit');
-    expect(L.steps.at(-1)?.excluded).toBe(true);
+    expect(L.steps[L.steps.length - 1]?.excluded).toBe(true);
   });
   it('refrigerant is the flat supplier rate', () => {
     expect(rates(aicm).RF).toBe(525);
